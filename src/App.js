@@ -6,7 +6,7 @@ import { mixins } from "./styles/GlobalStyles.styles";
 const Title = styled.h4`
   font-family: var(--pretendard);
   font-weight: normal;
-  ${mixins.border({width: 10})};
+  ${mixins.border({ color: "blue", width: 10 })};
 `;
 
 function App() {

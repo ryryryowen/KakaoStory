@@ -23,6 +23,11 @@ export const GlobalStyles = createGlobalStyle`
 
   :root{
     --point-color: #ffe900;
+    --main-lightgray: #d9d9d9;
+    --main-gray: #999999;
+    --main-dark: #000000;
+    --main-lightdark: #222222;
+    --main-white: #ffffff;
     --kakao-big-bold: "kakaoBigBold";
     --kakao-big-regular: "kakaoBigRegular";
     --kakao-small-bold: "kakaoSmallBold";
@@ -50,4 +55,3 @@ export const mixins = {
   }
   `,
 };
-
