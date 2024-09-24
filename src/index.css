@@ -1,13 +1,18 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@font-face {
+  font-family: "kakaoBigBold";
+  src: url("./Fonts/kakao/KakaoBig-Bold-v1.0.woff2");
+}
+@font-face {
+  font-family: "kakaoBigRegular";
+  src: url("./Fonts/kakao/KakaoBig-Regular-v1.0.woff2");
+}
+@font-face {
+  font-family: "kakaoSmallBold";
+  src: url("./Fonts/kakao/KakaoSmall_Bold_OTF.woff2");
+}
+@font-face {
+  font-family: "kakaoSmallRegular";
+  src: url("./Fonts/kakao/KakaoSmall-Regular-v1.0.woff2");
 }
