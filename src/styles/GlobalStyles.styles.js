@@ -22,12 +22,12 @@ export const GlobalStyles = createGlobalStyle`
   /* Variables */
 
   :root{
-    --point-color: #ffe900;
-    --main-lightgray: #d9d9d9;
+    --point-color: #FFE900;
+    --main-light-gray: #EFEFEF;
     --main-gray: #999999;
     --main-dark: #000000;
-    --main-lightdark: #222222;
-    --main-white: #ffffff;
+    --main-light-dark: #222222;
+    --main-white: #FFFFFF;
     --kakao-big-bold: "kakaoBigBold";
     --kakao-big-regular: "kakaoBigRegular";
     --kakao-small-bold: "kakaoSmallBold";
