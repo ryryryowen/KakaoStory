@@ -1,19 +1,29 @@
 import styled from "styled-components";
-import "./App.css";
-import { GlobalStyles } from "./styles/GlobalStyles.styles";
-import { mixins } from "./styles/GlobalStyles.styles";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { GlobalStyles, mixins } from "./styles/GlobalStyles.styles";
+import Layout from "./components/layout/Layout";
+import MainPage from "./pages/MainPage";
+import LoginPage from "./pages/LoginPage";
+import DetailPage from "./pages/DetailPage";
 
-const Title = styled.h4`
-  font-family: var(--pretendard);
-  font-weight: normal;
-  ${mixins.border({ color: "blue", width: 10 })};
-`;
+// 라우터 설정
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />, // 공통 레이아웃
+    children: [
+      { path: "/", element: <MainPage /> },
+      { path: "/login", element: <LoginPage /> },
+      { path: "/detail/:id", element: <DetailPage /> },
+    ],
+  },
+]);
 
 function App() {
   return (
     <>
-      <GlobalStyles />
-      <Title>테스트</Title>
+      <GlobalStyles /> {/* 전역 스타일 적용 */}
+      <RouterProvider router={router} /> {/* 라우터 제공 */}
     </>
   );
 }
