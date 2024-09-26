@@ -1,7 +1,7 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styled from "styled-components";
-import image from "./images/kakaoLogo.png";
+import image from "../images/kakaoLogo.png";
 
 const HeaderHeader = styled.main`
   width: 100%;
