@@ -23,6 +23,7 @@ export const GlobalStyles = createGlobalStyle`
 
   :root{
     --point-color: #FFE900;
+    --main-bg-color: #F1F1F1;
     --main-light-gray: #EFEFEF;
     --main-gray: #999999;
     --main-dark: #000000;
