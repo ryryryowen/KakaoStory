@@ -28,6 +28,7 @@ export const GlobalStyles = createGlobalStyle`
     --main-dark: #000000;
     --main-light-dark: #222222;
     --main-white: #FFFFFF;
+    --main-bg-color: #F1F1F1;
     --kakao-big-bold: "kakaoBigBold";
     --kakao-big-regular: "kakaoBigRegular";
     --kakao-small-bold: "kakaoSmallBold";
