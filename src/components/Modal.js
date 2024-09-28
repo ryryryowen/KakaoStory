@@ -73,10 +73,16 @@ const DividerText = styled.span`
 `;
 
 const InputBoxes = styled.div`
-  ${mixins.flex()}
+  ${mixins.flex({ direction: "column", gap: 10 })}
+  width: 100%;
 `;
 
-const InputTitles = styled.span``;
+const InputTitles = styled.span`
+  align-self: flex-start;
+  font-family: var(--kakao-big-regular);
+  font-size: 16px;
+  color: black;
+`;
 
 const InputForms = styled.input`
   ${mixins.loginform()}
@@ -132,11 +138,20 @@ const Modal = () => {
               <DividerText>이메일로 로그인하기</DividerText>
               <DividerPart></DividerPart>
             </LoginDivider>
-            <InputForms
-              type="text"
-              placeholder="전화번호, 사용자 이름 또는 이메일"
-            ></InputForms>
-            <InputForms type="text" placeholder="비밀번호"></InputForms>
+            <InputBoxes>
+              <InputTitles>아아디/이메일</InputTitles>
+              <InputForms
+                type="text"
+                placeholder="전화번호, 사용자 이름 또는 이메일"
+              ></InputForms>
+              <span className="material-symbols-outlined">
+visibility
+</span>
+            </InputBoxes>
+            <InputBoxes>
+              <InputTitles>비밀번호 입력</InputTitles>
+              <InputForms type="text" placeholder="비밀번호"></InputForms>
+            </InputBoxes>
           </LeftAreaWrapper>
           {user.isLoggedIn && (
             <>
