@@ -8,6 +8,7 @@ const Button = styled.button`
   height: 50px;
   ${mixins.flex({ gap: 10 })};
   background: var(--point-color);
+  margin-bottom: 30px;
   border-radius: 100px;
   border: none;
   font-family: var(--kakao-big-regular);
@@ -17,6 +18,24 @@ const Button = styled.button`
   transition: all 0.3s;
   &:hover {
     opacity: 0.8;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2)
+  }
+  @media screen and (max-width: 768px){
+    order: 3;
+    margin-bottom: 40px;
+    ${mixins.border({color: "#ccc"})}
+    background: var(--main-white);
+    svg, path{
+      fill: var(--point-color);
+      transition: all 0.1s;
+    }
+    &:hover{
+      background: var(--point-color);
+      ${mixins.border({color: "transparent"})}
+      svg,path{
+        fill: black;
+      }
+    }
   }
 `;
 
