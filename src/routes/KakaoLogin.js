@@ -18,21 +18,22 @@ const Button = styled.button`
   transition: all 0.3s;
   &:hover {
     opacity: 0.8;
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2)
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
   }
-  @media screen and (max-width: 768px){
+  @media screen and (max-width: 768px) {
     order: 3;
     margin-bottom: 40px;
-    ${mixins.border({color: "#ccc"})}
+    ${mixins.border({ color: "#ccc" })}
     background: var(--main-white);
-    svg, path{
+    svg,
+    path {
       fill: var(--point-color);
       transition: all 0.1s;
     }
-    &:hover{
+    &:hover {
       background: var(--point-color);
-      ${mixins.border({color: "transparent"})}
-      svg,path{
+      ${mixins.border({ color: "transparent" })}
+      svg,path {
         fill: black;
       }
     }
@@ -40,7 +41,8 @@ const Button = styled.button`
 `;
 
 const KakaoLogin = () => {
-  const handleKakaoLogin = async () => {
+  const handleKakaoLogin = async (e) => {
+    e.preventDefault();
     window.location.href = KAKAO_AUTH_URL;
     const params = new URLSearchParams();
   };

@@ -1,6 +1,7 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { userAuth } from "../configs/firebaseconfig";
+import { motion } from "framer-motion";
 import styled from "styled-components";
 import { GlobalStyles, mixins } from "../styles/GlobalStyles.styles";
 import KakaoLogin from "../routes/KakaoLogin";
@@ -43,17 +44,17 @@ const Wrapper = styled.div`
           }
           .mobile-divider {
             order: 1;
-            & div{
+            & div {
               width: 110px;
             }
           }
           .mobile-input {
             order: 0;
           }
-          .mobile-submenu{
+          .mobile-submenu {
             order: 4;
           }
-          .mobile-login-btn{
+          .mobile-login-btn {
             order: 0;
             margin-bottom: 20px;
           }
@@ -102,7 +103,7 @@ const LogoImg = styled.img`
   top: 12px;
 `;
 
-const LeftAreaWrapper = styled.div`
+const LeftAreaWrapper = styled.form`
   position: absolute;
   top: 90px;
   width: 400px;
@@ -154,7 +155,7 @@ const InputTitles = styled.span`
   }
 `;
 
-const InputForms = styled.input`
+const InputForms = styled(motion.input)`
   ${mixins.loginform()}
   padding-left: 14px;
   &::placeholder {
@@ -222,19 +223,37 @@ const SubMenus = styled.div`
 `;
 
 const Modal = () => {
-  const focusRef = useRef();
+  const idRef = useRef();
+  const pwRef = useRef();
+  const valueIdRef = useRef();
+  const valuePwRef = useRef();
   const [isVisible, setIsVisible] = useState(true);
   const [isFocused, setIsFocused] = useState(null);
   const [isResponsive, setIsResponsive] = useState(false);
+  const [isError, setIsError] = useState({
+    id: false,
+    pw: false,
+  });
+  const [registerMode, setRegisterMode] = useState(false);
+  const [welcomeText, setWelcomeText] = useState("돌아오신 것을 환영합니다!");
+  const [loginBtnText, setLoginBtnText] = useState("이메일 로그인");
+
   const { user, setUser } = useContext(userKakaoCredentials);
 
   const listenResizeEvent = () => {
-    if (window.innerWidth < 768) setIsResponsive(true);
-    else setIsResponsive(false);
+    if (window.innerWidth < 768) {
+      setIsResponsive(true);
+      if (registerMode) setLoginBtnText("회원가입");
+      if (!registerMode) setLoginBtnText("로그인");
+    } else {
+      setIsResponsive(false);
+      if (!registerMode) setLoginBtnText("이메일 로그인");
+      if (registerMode) setLoginBtnText("회원가입");
+    }
   };
 
   useEffect(() => {
-    focusRef.current.focus();
+    idRef.current.focus();
     listenResizeEvent();
     window.addEventListener("resize", listenResizeEvent);
   }, []);
@@ -245,11 +264,29 @@ const Modal = () => {
 
   const toggleBlur = (e) => {
     setIsFocused(null);
+    setIsError({
+      id: false,
+      pw: false,
+    });
   };
 
   const toggleVisible = () => {
     setIsVisible((current) => !current);
   };
+
+  const toggleRegisterMode = () => {
+    setRegisterMode((current) => !current);
+    if (!registerMode) {
+      setWelcomeText("환영합니다!");
+      setLoginBtnText("회원가입");
+    } else {
+      setWelcomeText("돌아오신 것을 환영합니다!");
+      if (isResponsive === true) setLoginBtnText("로그인");
+      else setLoginBtnText("이메일 로그인");
+    }
+  };
+
+  console.log(registerMode);
 
   const handleLogout = async () => {
     try {
@@ -282,6 +319,34 @@ const Modal = () => {
       console.log("로그아웃 중 오류 발생:", error);
     }
   };
+
+  const handleEmailLogin = (e) => {
+    e.preventDefault();
+    valueIdRef.current = idRef.current.value;
+    valuePwRef.current = pwRef.current.value;
+    if (valueIdRef.current === "" && valuePwRef.current === "") {
+      setIsError({
+        id: true,
+        pw: true,
+      });
+      return;
+    }
+    if (valueIdRef.current === "") {
+      setIsError({
+        ...isError,
+        id: true,
+      });
+      return;
+    }
+    if (valuePwRef.current === "") {
+      setIsError({
+        ...isError,
+        pw: true,
+      });
+      return;
+    }
+  };
+
   return (
     <Wrapper>
       <LoginModal className="mobile-inner">
@@ -291,9 +356,9 @@ const Modal = () => {
             alt="mainlogo"
             className="main-logo"
           />
-          <LeftAreaWrapper className="mobile-forms">
+          <LeftAreaWrapper className="mobile-forms" onSubmit={handleEmailLogin}>
             <WelcomeTitle className="welcome-title">
-              {!isResponsive ? "돌아오신 것을 환영합니다!" : "kakao "}
+              {!isResponsive ? welcomeText : "kakao "}
               {isResponsive && <b>story</b>}
             </WelcomeTitle>
             <KakaoLogin />
@@ -312,12 +377,20 @@ const Modal = () => {
                 아이디/이메일 <span>*</span>
               </InputTitles>
               <InputForms
-                ref={focusRef}
+                ref={idRef}
                 type="text"
                 placeholder="전화번호, 사용자 이름 또는 이메일"
                 onFocus={toggleFocus}
                 onBlur={toggleBlur}
                 name="id"
+                style={{ border: isError.id ? "1px solid red" : "" }}
+                initial={{ x: 0 }}
+                animate={
+                  isError.id
+                    ? { x: [0, 50, -50, 50, -50, 50, -50, 50, -50, 50, -50, 0] }
+                    : { x: 0 }
+                }
+                transition={{ duration: 0.6 }}
               ></InputForms>
             </InputBoxes>
             <InputBoxes className="mobile-input">
@@ -328,11 +401,20 @@ const Modal = () => {
                 비밀번호 입력 <span>*</span>
               </InputTitles>
               <InputForms
-                type={isVisible ? "text" : "password"}
+                type={!isVisible ? "text" : "password"}
                 placeholder="비밀번호"
                 onFocus={toggleFocus}
                 onBlur={toggleBlur}
                 name="password"
+                ref={pwRef}
+                style={{ border: isError.pw ? "1px solid red" : "" }}
+                initial={{ x: 0 }}
+                animate={
+                  isError.pw
+                    ? { x: [0, 50, -50, 50, -50, 50, -50, 50, -50, 50, -50, 0] }
+                    : { x: 0 }
+                }
+                transition={{ duration: 0.6 }}
               ></InputForms>
               <VisibleIcon
                 className="material-symbols-outlined"
@@ -343,7 +425,7 @@ const Modal = () => {
             </InputBoxes>
             <EmailLoginBtn
               type="submit"
-              value={!isResponsive ? "이메일 로그인" : "로그인"}
+              value={loginBtnText}
               className="mobile-login-btn"
             ></EmailLoginBtn>
             <SubMenuWrapper className="mobile-submenu">
@@ -353,22 +435,20 @@ const Modal = () => {
                 <span className="find-pw">비밀번호 찾기</span>
               </SubMenus>
               <SubMenus>
-                <span>계정이 없으시다면? </span>
-                <span>회원가입</span>
+                <span>
+                  {!registerMode
+                    ? "계정이 없으시다면?"
+                    : "계정이 이미 있으시다면?"}{" "}
+                </span>
+                <span onClick={toggleRegisterMode}>
+                  {!registerMode ? "회원가입" : "로그인하기"}
+                </span>
               </SubMenus>
             </SubMenuWrapper>
           </LeftAreaWrapper>
-          {user.isLoggedIn && (
-            <>
-              <h1>{user.userName}님</h1> <span>{user.kakaoId}</span>
-              <img src={user.kakaoProfilePic} alt="profilePic" />
-            </>
-          )}
         </LeftArea>
         {!isResponsive && (
           <RightArea className="right-area">
-            {/* <KakaoLogin />
-          {user.isLoggedIn && <Button onClick={handleLogout}>로그아웃</Button>} */}
             <img src={lightThemeImg} alt="lightThemeImg" />
           </RightArea>
         )}
