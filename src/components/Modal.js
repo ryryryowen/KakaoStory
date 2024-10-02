@@ -9,6 +9,12 @@ import { userKakaoCredentials } from "../routes/KakaoRedirect";
 import logo from "../images/kakaoLogoLight.png";
 import mobileLogo from "../images/kakaoLogoMobile.png";
 import lightThemeImg from "../images/kakaoLoginImgLight.png";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
+import { FirebaseError } from "firebase/app";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -243,12 +249,8 @@ const Modal = () => {
   const listenResizeEvent = () => {
     if (window.innerWidth < 768) {
       setIsResponsive(true);
-      if (registerMode) setLoginBtnText("회원가입");
-      if (!registerMode) setLoginBtnText("로그인");
     } else {
       setIsResponsive(false);
-      if (!registerMode) setLoginBtnText("이메일 로그인");
-      if (registerMode) setLoginBtnText("회원가입");
     }
   };
 
@@ -257,6 +259,14 @@ const Modal = () => {
     listenResizeEvent();
     window.addEventListener("resize", listenResizeEvent);
   }, []);
+
+  useEffect(() => {
+    if (registerMode) {
+      setLoginBtnText("회원가입");
+    } else {
+      setLoginBtnText(isResponsive ? "로그인" : "이메일 로그인");
+    }
+  }, [isResponsive, registerMode]);
 
   const toggleFocus = (e) => {
     setIsFocused(e.target.name);
@@ -276,17 +286,17 @@ const Modal = () => {
 
   const toggleRegisterMode = () => {
     setRegisterMode((current) => !current);
+    idRef.current.value = "";
+    pwRef.current.value = "";
     if (!registerMode) {
       setWelcomeText("환영합니다!");
       setLoginBtnText("회원가입");
     } else {
       setWelcomeText("돌아오신 것을 환영합니다!");
-      if (isResponsive === true) setLoginBtnText("로그인");
-      else setLoginBtnText("이메일 로그인");
+      if (isResponsive) setLoginBtnText("로그인");
+      if (!isResponsive) setLoginBtnText("이메일 로그인");
     }
   };
-
-  console.log(registerMode);
 
   const handleLogout = async () => {
     try {
@@ -320,31 +330,89 @@ const Modal = () => {
     }
   };
 
-  const handleEmailLogin = (e) => {
+  const handleEmailLogin = async (id, pw) => {
+    try {
+      await signInWithEmailAndPassword(userAuth, id, pw);
+    } catch (e) {
+      if (e instanceof FirebaseError) {
+        console.log(e.code);
+        if (e.code === "auth/user-not-found")
+          window.alert("존재하지 않는 계정입니다. 다시 시도해주세요.");
+        else if (e.code === "auth/wrong-password") {
+          setIsError({ ...isError, pw: true });
+          window.alert("비밀번호가 올바르지 않습니다. ");
+        } else if (e.code === "auth/invalid-credential")
+          window.alert(
+            "아이디 혹은 비밀번호가 올바르지 않습니다. 다시 시도해주세요."
+          );
+        else if (e.code === "auth/too-many-requests")
+          window.alert(
+            "잘못된 로그인 시도가 너무 많아 비밀번호를 재설정하시거나 잠시 후 다시 시도해 주세요."
+          );
+        else window.alert(e.message);
+      }
+    }
+  };
+
+  const handleEmailRegister = async (id, pw) => {
+    try {
+      await createUserWithEmailAndPassword(userAuth, id, pw);
+    } catch (e) {
+      if (e instanceof FirebaseError) {
+        if (e.code === "auth/weak-password")
+          window.alert("비밀번호는 6자 이상이어야 합니다.");
+        else if (e.code === "auth/email-already-in-use")
+          window.alert(
+            "이미 사용중인 이메일입니다. 다른 이메일로 다시 시도해주세요."
+          );
+        else window.alert(e.message);
+      }
+    }
+  };
+
+  const onFormSubmit = (e) => {
     e.preventDefault();
     valueIdRef.current = idRef.current.value;
     valuePwRef.current = pwRef.current.value;
+    const idValue = valueIdRef.current;
+    const pwValue = valuePwRef.current;
+
     if (valueIdRef.current === "" && valuePwRef.current === "") {
       setIsError({
         id: true,
         pw: true,
       });
       return;
-    }
-    if (valueIdRef.current === "") {
+    } else if (valueIdRef.current === "") {
       setIsError({
         ...isError,
         id: true,
       });
       return;
-    }
-    if (valuePwRef.current === "") {
+    } else if (valuePwRef.current === "") {
       setIsError({
         ...isError,
         pw: true,
       });
       return;
+    } else {
+      setIsError({
+        id: false,
+        pw: false,
+      });
+      if (!registerMode) {
+        handleEmailLogin(idValue, pwValue);
+      } else {
+        handleEmailRegister(idValue, pwValue);
+      }
     }
+  };
+
+  const handleInvalidEmail = () => {
+    setIsError({
+      ...isError,
+      id: true,
+    });
   };
 
   return (
@@ -356,16 +424,20 @@ const Modal = () => {
             alt="mainlogo"
             className="main-logo"
           />
-          <LeftAreaWrapper className="mobile-forms" onSubmit={handleEmailLogin}>
+          <LeftAreaWrapper className="mobile-forms" onSubmit={onFormSubmit}>
             <WelcomeTitle className="welcome-title">
               {!isResponsive ? welcomeText : "kakao "}
               {isResponsive && <b>story</b>}
             </WelcomeTitle>
-            <KakaoLogin />
+            <KakaoLogin isRegisterMode={registerMode} />
             <LoginDivider className="mobile-divider">
               <DividerPart></DividerPart>
               <DividerText>
-                {!isResponsive ? "이메일로 로그인하기" : "간편 로그인"}
+                {!isResponsive
+                  ? !registerMode
+                    ? "이메일로 로그인하기"
+                    : "이메일로 회원가입"
+                  : "간편 로그인"}
               </DividerText>
               <DividerPart></DividerPart>
             </LoginDivider>
@@ -374,14 +446,15 @@ const Modal = () => {
                 className="input-title"
                 style={{ color: isFocused === "id" && "#000" }}
               >
-                아이디/이메일 <span>*</span>
+                이메일 입력<span>*</span>
               </InputTitles>
               <InputForms
                 ref={idRef}
-                type="text"
-                placeholder="전화번호, 사용자 이름 또는 이메일"
+                type="email"
+                placeholder="이메일"
                 onFocus={toggleFocus}
                 onBlur={toggleBlur}
+                onInvalid={handleInvalidEmail}
                 name="id"
                 style={{ border: isError.id ? "1px solid red" : "" }}
                 initial={{ x: 0 }}

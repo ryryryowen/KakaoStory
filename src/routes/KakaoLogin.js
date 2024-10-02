@@ -40,7 +40,7 @@ const Button = styled.button`
   }
 `;
 
-const KakaoLogin = () => {
+const KakaoLogin = ({ isRegisterMode }) => {
   const handleKakaoLogin = async (e) => {
     e.preventDefault();
     window.location.href = KAKAO_AUTH_URL;
@@ -61,7 +61,9 @@ const KakaoLogin = () => {
           fill="black"
         />
       </svg>
-      카카오톡으로 로그인하기
+      {!isRegisterMode
+        ? "카카오톡으로 로그인하기"
+        : "카카오톡으로 바로 시작하기"}
     </Button>
   );
 };
