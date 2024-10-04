@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import DetailModal from "../components/Detail/DetailModal/DetailModal";
+import WriteStoryModal from "../components/WriteStoryModal"; // WriteStoryModal 임포트
 
 // 스타일 컴포넌트 정리
 const PageContainer = styled.div`
@@ -29,9 +30,20 @@ const ModalContent = styled.div`
   padding: 20px;
 `;
 
+const AddStoryButton = styled.button`
+  margin: 20px 0;
+  padding: 10px 20px;
+  background-color: #ffe900;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+`;
+
 const MainPage = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 열림/닫힘 상태 관리
+  const [isModalOpen, setIsModalOpen] = useState(false); // Detail 모달 상태
   const [selectedPost, setSelectedPost] = useState(null); // 선택한 게시물 데이터
+  const [isWriteModalOpen, setIsWriteModalOpen] = useState(false); // WriteStoryModal 상태
 
   // 목업 게시글들 << 예시입니다.
   const posts = [
@@ -44,21 +56,36 @@ const MainPage = () => {
     { id: 7, title: "게시물 7", content: "게시물 7의 내용" },
   ];
 
-  // 게시물 클릭 시 모달 열기
+  // 게시물 클릭 시 Detail 모달 열기
   const openModal = (post) => {
     setSelectedPost(post);
     setIsModalOpen(true);
   };
 
-  // 모달 닫기 함수로 분리
+  // Detail 모달 닫기
   const closeModal = () => {
     setSelectedPost(null);
     setIsModalOpen(false);
   };
 
+  // WriteStoryModal 열기
+  const openWriteModal = () => {
+    setIsWriteModalOpen(true);
+  };
+
+  // WriteStoryModal 닫기
+  const closeWriteModal = () => {
+    setIsWriteModalOpen(false);
+  };
+
   return (
     <PageContainer>
       <h1>메인 페이지</h1>
+
+      {/* 글 작성 버튼 */}
+      <AddStoryButton onClick={openWriteModal}>
+        오늘의 스토리를 들려주세요
+      </AddStoryButton>
 
       {/* 게시물 리스트 */}
       <PostList>
@@ -69,8 +96,12 @@ const MainPage = () => {
         ))}
       </PostList>
 
-      {/* 모달 컴포넌트 */}
-      <DetailModal isOpen={isModalOpen} onClose={closeModal}>
+      {/* Detail 모달 컴포넌트 */}
+      <DetailModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        post={selectedPost}
+      >
         {selectedPost && (
           <ModalContent>
             <h2>{selectedPost.title}</h2>
@@ -78,6 +109,9 @@ const MainPage = () => {
           </ModalContent>
         )}
       </DetailModal>
+
+      {/* WriteStoryModal 컴포넌트 */}
+      <WriteStoryModal isOpen={isWriteModalOpen} onClose={closeWriteModal} />
     </PageContainer>
   );
 };
