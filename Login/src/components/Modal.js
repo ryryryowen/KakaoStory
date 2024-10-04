@@ -11,7 +11,9 @@ import mobileLogo from "../images/kakaoLogoMobile.png";
 import lightThemeImg from "../images/kakaoLoginImgLight.png";
 import {
   createUserWithEmailAndPassword,
+  sendEmailVerification,
   signInWithEmailAndPassword,
+  signOut,
   updateProfile,
 } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
@@ -332,7 +334,20 @@ const Modal = () => {
 
   const handleEmailLogin = async (id, pw) => {
     try {
-      await signInWithEmailAndPassword(userAuth, id, pw);
+      const firebaseCredentials = await signInWithEmailAndPassword(
+        userAuth,
+        id,
+        pw
+      );
+
+      const firebaseUser = firebaseCredentials.user;
+
+      if (!firebaseUser.emailVerified) {
+        alert("이메일 인증이 완료되지 않았습니다. 로그아웃 중..");
+        signOut(userAuth);
+      } else {
+        alert(`${firebaseUser.email.split("@")[0]}님, 환영합니다!`);
+      }
     } catch (e) {
       if (e instanceof FirebaseError) {
         console.log(e.code);
@@ -356,7 +371,19 @@ const Modal = () => {
 
   const handleEmailRegister = async (id, pw) => {
     try {
-      await createUserWithEmailAndPassword(userAuth, id, pw);
+      const firebaseCredentials = await createUserWithEmailAndPassword(
+        userAuth,
+        id,
+        pw
+      );
+      const firebaseUser = firebaseCredentials.user;
+
+      if (firebaseUser) {
+        await sendEmailVerification(firebaseUser);
+        alert(
+          "계정이 성공적으로 생성되었습니다. 로그인하기 전에 이메일에서 인증 링크를 확인한 후 다시 로그인해 주십시오."
+        );
+      }
     } catch (e) {
       if (e instanceof FirebaseError) {
         if (e.code === "auth/weak-password")
@@ -408,6 +435,11 @@ const Modal = () => {
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") onFormSubmit(e);
+    else return;
+  };
+
   const handleInvalidEmail = () => {
     setIsError({
       ...isError,
@@ -424,7 +456,11 @@ const Modal = () => {
             alt="mainlogo"
             className="main-logo"
           />
-          <LeftAreaWrapper className="mobile-forms" onSubmit={onFormSubmit}>
+          <LeftAreaWrapper
+            className="mobile-forms"
+            onSubmit={onFormSubmit}
+            onKeyDown={handleKeyPress}
+          >
             <WelcomeTitle className="welcome-title">
               {!isResponsive ? welcomeText : "kakao "}
               {isResponsive && <b>story</b>}
