@@ -189,9 +189,6 @@ const MainPage = () => {
     <PageContainer>
       {/* <video controls autoPlay muted src={videoUrl}></video> */}
       <h1>메인 페이지</h1>
-      <AddStoryButton onClick={openWriteModal}>
-        오늘의 스토리를 들려주세요
-      </AddStoryButton>
 
       {/* 게시물 리스트 */}
       <PostList>
