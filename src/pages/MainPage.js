@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import DetailModal from "../components/Detail/DetailModal/DetailModal";
-import WriteStoryModal from "../components/WriteStoryModal";
-import { auth, storage } from "../firebase";
+import { auth, storage } from "../configs/firebase";
 import { getDownloadURL, ref } from "firebase/storage";
 
 // 스타일 컴포넌트 설정
@@ -27,16 +26,6 @@ const PostItem = styled.li`
   &:hover {
     background-color: #e0e0e0;
   }
-`;
-
-const AddStoryButton = styled.button`
-  margin: 20px 0;
-  padding: 10px 20px;
-  background-color: #ffe900;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
 `;
 
 const MainPage = () => {
@@ -220,11 +209,6 @@ const MainPage = () => {
           onClose={closeModal}
           post={selectedPost} // post 객체로 프롭스 전달
         />
-      )}
-
-      {/* WriteStoryModal 컴포넌트 */}
-      {isWriteModalOpen && (
-        <WriteStoryModal isOpen={isWriteModalOpen} onClose={closeWriteModal} />
       )}
     </PageContainer>
   );

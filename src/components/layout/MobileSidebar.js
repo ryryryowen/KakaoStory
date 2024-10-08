@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { mixins } from "../../styles/GlobalStyles.styles";
+import MoSidebarList from "./MoSidebarList";
+import { AnimatePresence, motion, transform } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -9,8 +12,8 @@ const Wrapper = styled.div`
   height: 70px;
   background: ${({ theme }) => theme.bgColor};
   color: ${({ theme }) => theme.fontColor};
-  border: 1px solid #000;
   border-radius: 26px 26px 0 0;
+  z-index: 100;
   ${mixins.flex({})}
   .iconsWrapper {
     width: 390px;
@@ -43,28 +46,80 @@ const Wrapper = styled.div`
 `;
 
 const MobileSidebar = () => {
+  const [listShow, setListShow] = useState(false);
+  const nevigate = useNavigate();
+
+  const goHome = () => {
+    nevigate("/");
+  };
+
+  const openList = (e) => {
+    e.stopPropagation();
+    setListShow((prev) => !prev);
+  };
+
+  const circleVarients = {
+    initial: {
+      scale: 0.2,
+      opacity: 0.2,
+      y: "30%",
+      x: "-50%",
+      rotate: -60,
+      transition: { duration: 0.5 },
+    },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      y: 0,
+      x: "-50%",
+      rotate: 0,
+      transition: { duration: 0.5 },
+    },
+    leaving: {
+      scale: 0.2,
+      opacity: 0,
+      y: "30%",
+      x: "-50%",
+      rotate: -60,
+      transition: { duration: 0.5 },
+    },
+  };
+
   return (
-    <Wrapper $flexProps>
-      <div className="iconsWrapper">
-        <div className="icon">
-          <span className="material-symbols-outlined">home</span>
+    <>
+      <Wrapper $flexProps>
+        <div className="iconsWrapper" onClick={goHome}>
+          <div className="icon">
+            <span className="material-symbols-outlined">home</span>
+          </div>
+          <div className="icon">
+            <span className="material-symbols-outlined">shopping_bag</span>
+          </div>
+          <div className="icon plusIcon" onClick={openList}>
+            <span className="material-symbols-outlined">add</span>
+          </div>
+          <div className="icon">
+            <span className="material-symbols-outlined">
+              local_fire_department
+            </span>
+          </div>
+          <div className="icon">
+            <span className="material-symbols-outlined">menu</span>
+          </div>
         </div>
-        <div className="icon">
-          <span className="material-symbols-outlined">shopping_bag</span>
-        </div>
-        <div className="icon plusIcon">
-          <span className="material-symbols-outlined">add</span>
-        </div>
-        <div className="icon">
-          <span className="material-symbols-outlined">
-            local_fire_department
-          </span>
-        </div>
-        <div className="icon">
-          <span className="material-symbols-outlined">menu</span>
-        </div>
-      </div>
-    </Wrapper>
+      </Wrapper>
+      <AnimatePresence>
+        {listShow ? (
+          <MoSidebarList
+            variants={circleVarients}
+            initial="initial"
+            animate="visible"
+            exit="leaving"
+            openList={openList}
+          />
+        ) : null}
+      </AnimatePresence>
+    </>
   );
 };
 

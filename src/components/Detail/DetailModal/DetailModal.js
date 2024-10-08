@@ -337,7 +337,13 @@ const DetailModal = ({ isOpen, onClose, post }) => {
                     isLiked={likedComments[index]}
                     onClick={() => toggleLikeComment(index)}
                   >
-                    <span className="material-symbols-outlined">favorite</span>
+                    <i
+                      className={
+                        likedComments[index] === true
+                          ? "fa-solid fa-heart"
+                          : "fa-regular fa-heart"
+                      }
+                    ></i>
                   </CommentLikeIcon>
                 </Comment>
               ))
