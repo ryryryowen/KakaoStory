@@ -20,7 +20,6 @@ const KakaoRedirect = () => {
   const code = new URLSearchParams(window.location.search).get("code");
   const navigate = useNavigate();
   const { setUser } = useContext(userKakaoCredentials);
-  console.log(code);
 
   const getKakaoUserInfo = async (accessToken) => {
     try {
