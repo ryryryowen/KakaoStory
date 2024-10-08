@@ -23,12 +23,19 @@ export const GlobalStyles = createGlobalStyle`
 
   :root{
     --point-color: #FFE900;
+<<<<<<< HEAD
+=======
+    --main-bg-color: #F1F1F1;
+>>>>>>> feature_main
     --main-light-gray: #EFEFEF;
     --main-gray: #999999;
     --main-dark: #000000;
     --main-light-dark: #222222;
     --main-white: #FFFFFF;
+<<<<<<< HEAD
     --main-bg-color: #F1F1F1;
+=======
+>>>>>>> feature_main
     --kakao-big-bold: "kakaoBigBold";
     --kakao-big-regular: "kakaoBigRegular";
     --kakao-small-bold: "kakaoSmallBold";
@@ -55,6 +62,7 @@ export const mixins = {
     outline:none;
   }
   `,
+<<<<<<< HEAD
   loginform: (btnProps) => `
     width: 100%;
     height: 50px;
@@ -73,4 +81,6 @@ export const mixins = {
       ${btnProps?.hover ?? ""}
     }
   `,
+=======
+>>>>>>> feature_main
 };

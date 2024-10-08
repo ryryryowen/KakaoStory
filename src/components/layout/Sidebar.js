@@ -6,10 +6,18 @@ import { DarkModeStateContext } from "../../App";
 
 const Wrapper = styled.div`
   width: ${({ $showText }) => ($showText ? "360px" : "100px")};
+<<<<<<< HEAD
   height: calc(100vh - 60px);
   position: fixed;
   bottom: 0;
   left: 0;
+=======
+  height: calc(100vh - 80px);
+  position: absolute;
+  top: 80px;
+  left: 0;
+
+>>>>>>> feature_main
   font-family: var(--pretendard);
   background: ${({ theme }) => theme.bgColor};
   color: ${({ theme }) => theme.fontColor};
@@ -21,7 +29,10 @@ const Wrapper = styled.div`
   margin: 0 auto;
   padding: 30px;
   cursor: pointer;
+<<<<<<< HEAD
   z-index: 10;
+=======
+>>>>>>> feature_main
   transition: all 0.3s;
   > div {
     .mainList {
@@ -41,7 +52,11 @@ const Wrapper = styled.div`
         padding: 4px;
         min-width: 40px;
         border-radius: 8px 8px 0 8px;
+<<<<<<< HEAD
         transition: all 0s;
+=======
+        transition: all 0.5s;
+>>>>>>> feature_main
         cursor: pointer;
         > span {
           width: 30px;
@@ -65,7 +80,11 @@ const Wrapper = styled.div`
             opacity: 1;
           }
           > p {
+<<<<<<< HEAD
             /* opacity: ${({ $textOpacity }) => ($textOpacity ? 1 : 0)}; */
+=======
+            opacity: ${({ $textOpacity }) => ($textOpacity ? 1 : 0)};
+>>>>>>> feature_main
           }
         }
         .overText {
@@ -77,7 +96,11 @@ const Wrapper = styled.div`
           border-radius: 8px 8px 8px 0;
           padding: 6px 16px;
           opacity: 0;
+<<<<<<< HEAD
           transition: all 0.3s;
+=======
+          transition: all 0.5s;
+>>>>>>> feature_main
           p {
             font-size: 12px;
             white-space: nowrap;
@@ -150,11 +173,18 @@ const PostListWrapper = styled.div`
 
 const Sidebar = () => {
   const [showText, setShowText] = useState(false);
+<<<<<<< HEAD
   const [textOpacity, setTextOpacity] = useState(false);
   const [showList, setShowList] = useState(false);
 
   const { darkmode, handleDarkmode } = useContext(DarkModeStateContext);
 
+=======
+  const [textOpacity, setTextOpacity] = useState(true);
+  const [showList, setShowList] = useState(false);
+
+  const { darkmode, handleDarkmode } = useContext(DarkModeStateContext);
+>>>>>>> feature_main
   const nevigate = useNavigate();
 
   const toggleText = () => {
@@ -173,15 +203,29 @@ const Sidebar = () => {
   }, [showText]);
 
   const goHome = (e) => {
+<<<<<<< HEAD
+=======
+    e.stopPropagation();
+>>>>>>> feature_main
     nevigate("/");
   };
 
   const goProfile = (e) => {
+<<<<<<< HEAD
     nevigate(`/profile`);
   };
 
   const makePostList = (e) => {
     setShowList((prev) => !prev);
+=======
+    e.stopPropagation();
+    nevigate(`/profile/{id}`);
+  };
+
+  const makePostList = (e) => {
+    e.stopPropagation();
+    setShowList(!showList);
+>>>>>>> feature_main
   };
 
   return (
@@ -193,7 +237,13 @@ const Sidebar = () => {
               <span className="material-symbols-outlined">home</span>
             </span>
             <p>홈</p>
+<<<<<<< HEAD
             {showText ? null : (
+=======
+            {showText ? (
+              ""
+            ) : (
+>>>>>>> feature_main
               <div className="overText">
                 <p>홈</p>
               </div>
@@ -206,7 +256,13 @@ const Sidebar = () => {
               </span>
             </span>
             {showText && <p>실시간 트렌드</p>}
+<<<<<<< HEAD
             {showText ? null : (
+=======
+            {showText ? (
+              ""
+            ) : (
+>>>>>>> feature_main
               <div className="overText">
                 <p>실시간 트렌드</p>
               </div>
@@ -217,7 +273,13 @@ const Sidebar = () => {
               <span className="material-symbols-outlined">group</span>
             </span>
             {showText && <p>친구</p>}
+<<<<<<< HEAD
             {showText ? null : (
+=======
+            {showText ? (
+              ""
+            ) : (
+>>>>>>> feature_main
               <div className="overText">
                 <p>친구</p>
               </div>
@@ -228,7 +290,13 @@ const Sidebar = () => {
               <span className="material-symbols-outlined">shopping_bag</span>
             </span>
             {showText && <p>그립</p>}
+<<<<<<< HEAD
             {showText ? null : (
+=======
+            {showText ? (
+              ""
+            ) : (
+>>>>>>> feature_main
               <div className="overText">
                 <p>그립</p>
               </div>
@@ -239,7 +307,13 @@ const Sidebar = () => {
               <span className="material-symbols-outlined">add_box</span>
             </span>
             {showText && <p>만들기</p>}
+<<<<<<< HEAD
             {showText ? null : (
+=======
+            {showText ? (
+              " "
+            ) : (
+>>>>>>> feature_main
               <div className="overText">
                 <p>만들기</p>
               </div>
@@ -317,7 +391,13 @@ const Sidebar = () => {
               )}
             </span>
             {showText && <p>접기</p>}
+<<<<<<< HEAD
             {showText ? null : (
+=======
+            {showText ? (
+              ""
+            ) : (
+>>>>>>> feature_main
               <div className="overText">
                 <p>접기</p>
               </div>
@@ -333,7 +413,13 @@ const Sidebar = () => {
               <span className="material-symbols-outlined">settings</span>
             </span>
             {showText && <p>설정</p>}
+<<<<<<< HEAD
             {showText ? null : (
+=======
+            {showText ? (
+              ""
+            ) : (
+>>>>>>> feature_main
               <div className="overText">
                 <p>설정</p>
               </div>
@@ -344,7 +430,13 @@ const Sidebar = () => {
               <span className="material-symbols-outlined">account_circle</span>
             </span>
             {showText && <p>프로필</p>}
+<<<<<<< HEAD
             {showText ? null : (
+=======
+            {showText ? (
+              ""
+            ) : (
+>>>>>>> feature_main
               <div className="overText">
                 <p>프로필</p>
               </div>
@@ -353,6 +445,7 @@ const Sidebar = () => {
           <li onClick={handleDarkmode}>
             <span>
               {darkmode ? (
+<<<<<<< HEAD
                 <span className="material-symbols-outlined">light_mode</span>
               ) : (
                 <span className="material-symbols-outlined">dark_mode</span>
@@ -362,6 +455,19 @@ const Sidebar = () => {
             {showText ? null : (
               <div className="overText">
                 <p> {darkmode ? "라이트모드" : "다크모드"}</p>
+=======
+                <span className="material-symbols-outlined">dark_mode</span>
+              ) : (
+                <span className="material-symbols-outlined">light_mode</span>
+              )}
+            </span>
+            {showText && <p>{darkmode ? "다크모드" : "라이트모드"}</p>}
+            {showText ? (
+              ""
+            ) : (
+              <div className="overText">
+                <p> {darkmode ? "다크모드" : "라이트모드"}</p>
+>>>>>>> feature_main
               </div>
             )}
           </li>

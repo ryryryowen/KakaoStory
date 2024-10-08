@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { auth, db, storage } from "../../configs/firebase";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -8,6 +9,9 @@ const Wrapper = styled.div`
   justify-content: center;
   align-items: center;
   background: #fff;
+  border-radius: 20px;
+  background: ${({ theme }) =>
+    theme.bgColor === "var(--main-dark)" ? "#222" : theme.bgColor};
 `;
 const Container = styled.div`
   width: 950px;
@@ -17,6 +21,8 @@ const Container = styled.div`
   align-items: center;
   border-radius: 20px;
   transition: all 0.3s;
+  background: ${({ theme }) =>
+    theme.bgColor === "var(--main-dark)" ? "#222" : theme.bgColor};
   &:hover {
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
   }
@@ -63,18 +69,21 @@ const NameImage = styled.div`
 const NameText = styled.div`
   font-size: 18px;
   font-weight: bold;
+  color: ${({ isDarkMode, theme }) => (isDarkMode ? "#fff" : theme.fontColor)};
 `;
 const Day = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
+  color: ${({ isDarkMode, theme }) => (isDarkMode ? "#fff" : theme.fontColor)};
 `;
 const FormText = styled.div`
   width: 482px;
   height: 350px;
   padding-bottom: 33px;
   font-size: 16px;
+  color: ${({ isDarkMode, theme }) => (isDarkMode ? "#fff" : theme.fontColor)};
 `;
 const Icons = styled.div`
   width: 482px;
@@ -152,6 +161,8 @@ const Commentinput = styled.input`
   color: black; /* 기본 색상 */
   text-shadow: none; /* 기본 텍스트 그림자 없음 */
   transition: color 0.2s ease; /* 색상 변화에 애니메이션 추가 */
+  padding: 0 90px 0 20px;
+  outline: none;
 `;
 const CommentIcon = styled.div`
   width: 450px;
@@ -164,12 +175,14 @@ const Llink = styled.i`
   position: absolute;
   top: 35%;
   right: 60px;
+  color: #666;
   cursor: pointer;
 `;
 const Img = styled.i`
   position: absolute;
   top: 35%;
   right: 30px;
+  color: #666;
   cursor: pointer;
 `;
 const PostForm = () => {

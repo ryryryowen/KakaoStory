@@ -7,6 +7,10 @@ const Wrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  @media (max-width: 768px) {
+    display: none; // 모바일에서 숨기기
+  }
 `;
 
 const PostList = () => {
