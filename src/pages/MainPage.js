@@ -183,6 +183,7 @@ const MainPage = () => {
 
   useEffect(() => {
     getURL();
+    console.log(userAuth.currentUser)
   }, []);
 
   return (

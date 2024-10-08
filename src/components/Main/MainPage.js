@@ -8,6 +8,7 @@ import Video from "./Video";
 import PostList from "./PostList";
 import MobliePostList from "./MobilePostList"; // Fix the spelling here
 import { useLocation } from "react-router-dom"; // Import useLocation if needed
+import { userAuth } from "../../configs/firebase";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -42,6 +43,7 @@ const MainPage = () => {
   };
 
   useEffect(() => {
+    console.log(userAuth.currentUser);
     updateSize(); // Initial check
     window.addEventListener("resize", updateSize);
     return () => {

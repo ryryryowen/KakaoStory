@@ -17,6 +17,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
+import { useNavigate } from "react-router-dom";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -248,6 +249,8 @@ const Modal = () => {
 
   const { user, setUser } = useContext(userKakaoCredentials);
 
+  const navigate = useNavigate();
+
   const listenResizeEvent = () => {
     if (window.innerWidth < 768) {
       setIsResponsive(true);
@@ -347,6 +350,9 @@ const Modal = () => {
         signOut(userAuth);
       } else {
         alert(`${firebaseUser.email.split("@")[0]}님, 환영합니다!`);
+        console.log(userAuth.currentUser);
+        setUser({ ...user, isLoggedIn: true });
+        navigate("/");
       }
     } catch (e) {
       if (e instanceof FirebaseError) {

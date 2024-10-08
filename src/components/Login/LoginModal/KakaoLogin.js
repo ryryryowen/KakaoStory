@@ -45,6 +45,7 @@ const KakaoLogin = ({ isRegisterMode }) => {
     e.preventDefault();
     window.location.href = KAKAO_AUTH_URL;
     const params = new URLSearchParams();
+    
   };
 
   return (
