@@ -6,11 +6,10 @@ import { DarkModeStateContext } from "../../App";
 
 const Wrapper = styled.div`
   width: ${({ $showText }) => ($showText ? "360px" : "100px")};
-  height: calc(100vh - 80px);
-  position: absolute;
-  top: 80px;
+  height: calc(100vh - 60px);
+  position: fixed;
+  bottom: 0;
   left: 0;
-  border: 1px solid #000;
   font-family: var(--pretendard);
   background: ${({ theme }) => theme.bgColor};
   color: ${({ theme }) => theme.fontColor};
@@ -22,6 +21,7 @@ const Wrapper = styled.div`
   margin: 0 auto;
   padding: 30px;
   cursor: pointer;
+  z-index: 10;
   transition: all 0.3s;
   > div {
     .mainList {
@@ -41,7 +41,7 @@ const Wrapper = styled.div`
         padding: 4px;
         min-width: 40px;
         border-radius: 8px 8px 0 8px;
-        transition: all 0.5s;
+        transition: all 0s;
         cursor: pointer;
         > span {
           width: 30px;
@@ -65,7 +65,7 @@ const Wrapper = styled.div`
             opacity: 1;
           }
           > p {
-            opacity: ${({ $textOpacity }) => ($textOpacity ? 1 : 0)};
+            /* opacity: ${({ $textOpacity }) => ($textOpacity ? 1 : 0)}; */
           }
         }
         .overText {
@@ -77,7 +77,7 @@ const Wrapper = styled.div`
           border-radius: 8px 8px 8px 0;
           padding: 6px 16px;
           opacity: 0;
-          transition: all 0.5s;
+          transition: all 0.3s;
           p {
             font-size: 12px;
             white-space: nowrap;
@@ -150,7 +150,7 @@ const PostListWrapper = styled.div`
 
 const Sidebar = () => {
   const [showText, setShowText] = useState(false);
-  const [textOpacity, setTextOpacity] = useState(true);
+  const [textOpacity, setTextOpacity] = useState(false);
   const [showList, setShowList] = useState(false);
 
   const { darkmode, handleDarkmode } = useContext(DarkModeStateContext);
@@ -173,18 +173,15 @@ const Sidebar = () => {
   }, [showText]);
 
   const goHome = (e) => {
-    e.stopPropagation();
     nevigate("/");
   };
 
   const goProfile = (e) => {
-    e.stopPropagation();
-    nevigate(`/profile/{id}`);
+    nevigate(`/profile`);
   };
 
   const makePostList = (e) => {
-    e.stopPropagation();
-    setShowList(!showList);
+    setShowList((prev) => !prev);
   };
 
   return (
@@ -196,9 +193,7 @@ const Sidebar = () => {
               <span className="material-symbols-outlined">home</span>
             </span>
             <p>홈</p>
-            {showText ? (
-              ""
-            ) : (
+            {showText ? null : (
               <div className="overText">
                 <p>홈</p>
               </div>
@@ -211,9 +206,7 @@ const Sidebar = () => {
               </span>
             </span>
             {showText && <p>실시간 트렌드</p>}
-            {showText ? (
-              ""
-            ) : (
+            {showText ? null : (
               <div className="overText">
                 <p>실시간 트렌드</p>
               </div>
@@ -224,9 +217,7 @@ const Sidebar = () => {
               <span className="material-symbols-outlined">group</span>
             </span>
             {showText && <p>친구</p>}
-            {showText ? (
-              ""
-            ) : (
+            {showText ? null : (
               <div className="overText">
                 <p>친구</p>
               </div>
@@ -237,9 +228,7 @@ const Sidebar = () => {
               <span className="material-symbols-outlined">shopping_bag</span>
             </span>
             {showText && <p>그립</p>}
-            {showText ? (
-              ""
-            ) : (
+            {showText ? null : (
               <div className="overText">
                 <p>그립</p>
               </div>
@@ -250,9 +239,7 @@ const Sidebar = () => {
               <span className="material-symbols-outlined">add_box</span>
             </span>
             {showText && <p>만들기</p>}
-            {showText ? (
-              " "
-            ) : (
+            {showText ? null : (
               <div className="overText">
                 <p>만들기</p>
               </div>
@@ -330,9 +317,7 @@ const Sidebar = () => {
               )}
             </span>
             {showText && <p>접기</p>}
-            {showText ? (
-              ""
-            ) : (
+            {showText ? null : (
               <div className="overText">
                 <p>접기</p>
               </div>
@@ -348,9 +333,7 @@ const Sidebar = () => {
               <span className="material-symbols-outlined">settings</span>
             </span>
             {showText && <p>설정</p>}
-            {showText ? (
-              ""
-            ) : (
+            {showText ? null : (
               <div className="overText">
                 <p>설정</p>
               </div>
@@ -361,9 +344,7 @@ const Sidebar = () => {
               <span className="material-symbols-outlined">account_circle</span>
             </span>
             {showText && <p>프로필</p>}
-            {showText ? (
-              ""
-            ) : (
+            {showText ? null : (
               <div className="overText">
                 <p>프로필</p>
               </div>
@@ -372,17 +353,15 @@ const Sidebar = () => {
           <li onClick={handleDarkmode}>
             <span>
               {darkmode ? (
-                <span className="material-symbols-outlined">dark_mode</span>
-              ) : (
                 <span className="material-symbols-outlined">light_mode</span>
+              ) : (
+                <span className="material-symbols-outlined">dark_mode</span>
               )}
             </span>
-            {showText && <p>{darkmode ? "다크모드" : "라이트모드"}</p>}
-            {showText ? (
-              ""
-            ) : (
+            {showText && <p>{darkmode ? "라이트모드" : "다크모드"}</p>}
+            {showText ? null : (
               <div className="overText">
-                <p> {darkmode ? "다크모드" : "라이트모드"}</p>
+                <p> {darkmode ? "라이트모드" : "다크모드"}</p>
               </div>
             )}
           </li>

@@ -7,6 +7,7 @@ import Layout from "./components/layout/Layout";
 import MainPage from "./pages/MainPage";
 import LoginPage from "./pages/LoginPage";
 import DetailPage from "./pages/DetailPage";
+import MyProfile from "./pages/MyProfile";
 
 // 라우터 설정
 const router = createBrowserRouter([
@@ -17,6 +18,7 @@ const router = createBrowserRouter([
       { path: "/", element: <MainPage /> },
       { path: "/login", element: <LoginPage /> },
       { path: "/detail/:id", element: <DetailPage /> },
+      { path: "/profile", element: <MyProfile /> },
     ],
   },
 ]);
