@@ -12,11 +12,12 @@ import DetailPage from "./pages/DetailPage";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Layout />, // 공통 레이아웃
+    element: <Layout />,
     children: [
       { path: "/", element: <MainPage /> },
       { path: "/login", element: <LoginPage /> },
       { path: "/detail/:id", element: <DetailPage /> },
+      { path: "/profile", element: <MyProfile /> },
     ],
   },
 ]);
@@ -32,7 +33,7 @@ function App() {
 
   return (
     <>
-      <GlobalStyles /> {/* 전역 스타일 적용 */}
+      <GlobalStyles />
       <DarkModeStateContext.Provider value={{ darkmode, handleDarkmode }}>
         <ThemeProvider theme={darkmode ? darkTheme : lightTheme}>
           <RouterProvider router={router} /> {/* 라우터 제공 */}
