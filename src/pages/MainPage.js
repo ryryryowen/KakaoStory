@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import DetailModal from "../components/Detail/DetailModal/DetailModal";
@@ -8,14 +7,6 @@ import { getDownloadURL, ref } from "firebase/storage";
 // 스타일 컴포넌트 설정
 const PageContainer = styled.div`
   position: relative;
-=======
-import React, { useState } from "react";
-import styled from "styled-components";
-import DetailModal from "../components/Detail/DetailModal/DetailModal";
-
-// 스타일 컴포넌트 정리
-const PageContainer = styled.div`
->>>>>>> feature_main
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
@@ -37,7 +28,6 @@ const PostItem = styled.li`
   }
 `;
 
-<<<<<<< HEAD
 const MainPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // Detail 모달 상태
   const [selectedPost, setSelectedPost] = useState(null); // 선택한 게시물 데이터
@@ -159,44 +149,17 @@ const MainPage = () => {
   ];
 
   // 게시물 클릭 시 Detail 모달 열기
-=======
-const ModalContent = styled.div`
-  padding: 20px;
-`;
-
-const MainPage = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 열림/닫힘 상태 관리
-  const [selectedPost, setSelectedPost] = useState(null); // 선택한 게시물 데이터
-
-  // 목업 게시글들 << 예시입니다.
-  const posts = [
-    { id: 1, title: "게시물 1", content: "게시물 1의 내용" },
-    { id: 2, title: "게시물 2", content: "게시물 2의 내용" },
-    { id: 3, title: "게시물 3", content: "게시물 3의 내용" },
-    { id: 4, title: "게시물 4", content: "게시물 4의 내용" },
-    { id: 5, title: "게시물 5", content: "게시물 5의 내용" },
-    { id: 6, title: "게시물 6", content: "게시물 6의 내용" },
-    { id: 7, title: "게시물 7", content: "게시물 7의 내용" },
-  ];
-
-  // 게시물 클릭 시 모달 열기
->>>>>>> feature_main
   const openModal = (post) => {
     setSelectedPost(post);
     setIsModalOpen(true);
   };
 
-<<<<<<< HEAD
   // Detail 모달 닫기
-=======
-  // 모달 닫기 함수로 분리
->>>>>>> feature_main
   const closeModal = () => {
     setSelectedPost(null);
     setIsModalOpen(false);
   };
 
-<<<<<<< HEAD
   // WriteStoryModal 열기
   const openWriteModal = () => {
     setIsWriteModalOpen(true);
@@ -225,10 +188,6 @@ const MainPage = () => {
   return (
     <PageContainer>
       {/* <video controls autoPlay muted src={videoUrl}></video> */}
-=======
-  return (
-    <PageContainer>
->>>>>>> feature_main
       <h1>메인 페이지</h1>
 
       {/* 게시물 리스트 */}
@@ -240,7 +199,6 @@ const MainPage = () => {
         ))}
       </PostList>
 
-<<<<<<< HEAD
       {/* Detail 모달 컴포넌트 */}
       {isModalOpen && selectedPost && (
         <DetailModal
@@ -249,17 +207,6 @@ const MainPage = () => {
           post={selectedPost} // post 객체로 프롭스 전달
         />
       )}
-=======
-      {/* 모달 컴포넌트 */}
-      <DetailModal isOpen={isModalOpen} onClose={closeModal}>
-        {selectedPost && (
-          <ModalContent>
-            <h2>{selectedPost.title}</h2>
-            <p>{selectedPost.content}</p>
-          </ModalContent>
-        )}
-      </DetailModal>
->>>>>>> feature_main
     </PageContainer>
   );
 };

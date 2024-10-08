@@ -1,14 +1,14 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { userAuth } from "../configs/firebaseconfig";
+import { userAuth } from "../../../configs/firebase";
 import { motion } from "framer-motion";
 import styled from "styled-components";
-import { GlobalStyles, mixins } from "../styles/GlobalStyles.styles";
-import KakaoLogin from "../routes/KakaoLogin";
-import { userKakaoCredentials } from "../routes/KakaoRedirect";
-import logo from "../images/kakaoLogoLight.png";
-import mobileLogo from "../images/kakaoLogoMobile.png";
-import lightThemeImg from "../images/kakaoLoginImgLight.png";
+import { GlobalStyles, mixins } from "../../../styles/GlobalStyles.styles";
+import KakaoLogin from "./KakaoLogin";
+import { userKakaoCredentials } from "../../../routes/KakaoRedirect";
+import logo from "../../../images/kakaoLogoLight.png";
+import mobileLogo from "../../../images/kakaoLogoMobile.png";
+import lightThemeImg from "../../../images/kakaoLoginImgLight.png";
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,

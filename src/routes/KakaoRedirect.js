@@ -12,7 +12,7 @@ import {
   setPersistence,
   signInWithCredential,
 } from "firebase/auth";
-import { userAuth } from "../configs/firebaseconfig";
+import { userAuth } from "../configs/firebase";
 
 export const userKakaoCredentials = React.createContext();
 

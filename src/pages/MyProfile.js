@@ -4,7 +4,7 @@ import MyProfileInfo from "../components/Detail/MyProfileInfo";
 import PostList from "../components/Main/PostList";
 import MobileProfile from "../components/Detail/MobileProfile";
 import ProfileFriend from "../components/Detail/ProfileFriend";
-import { auth } from "../configs/firebase";
+import { userAuth } from "../configs/firebase";
 
 const Wrapper = styled.div`
   /* padding-left: 100px; */
@@ -73,7 +73,7 @@ const ProfileWrapper = styled.div`
 `;
 
 const MyProfile = () => {
-  const user = auth.currentUser;
+  const user = userAuth.currentUser;
   console.log(user);
   const [mobileSize, setMobileSize] = useState(false);
 

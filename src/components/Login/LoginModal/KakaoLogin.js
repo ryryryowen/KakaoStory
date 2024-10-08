@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { KAKAO_AUTH_URL } from "../configs/kakaologin";
-import { mixins } from "../styles/GlobalStyles.styles";
+import { KAKAO_AUTH_URL } from "../../../configs/kakaologin";
+import { mixins } from "../../../styles/GlobalStyles.styles";
 
 const Button = styled.button`
   width: 100%;
