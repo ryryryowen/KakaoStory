@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from "react";
-import User from "./User";
+// import User from "./User";
 import { Outlet } from "react-router-dom";
-import Sidebar from "../layout/Sidebar";
-import MobileHeader from "../layout/MobileHeader"; // Import MobileHeader
 import styled from "styled-components";
-import Video from "./Video";
-import PostList from "./PostList";
-import MobliePostList from "./MobilePostList"; // Fix the spelling here
+// import Video from "./Video";
 import { useLocation } from "react-router-dom"; // Import useLocation if needed
-import { userAuth } from "../../configs/firebase";
+import PostList from "../components/Main/PostList";
+import MobilePostList from "../components/Main/MobilePostList";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -30,40 +27,27 @@ const Container = styled.div`
   }
 `;
 
-const Videomap = styled.div`
-  display: ${({ isMobile }) =>
-    isMobile ? "none" : "block"}; // Mobile일 때 숨기기
-`;
+// const Videomap = styled.div`
+//   display: ${({ isMobile }) =>
+//     isMobile ? "none" : "block"}; // Mobile일 때 숨기기
+// `;
 
 const MainPage = () => {
   const [mobileSize, setMobileSize] = useState(false);
-
-  const updateSize = () => {
-    setMobileSize(window.innerWidth <= 768);
+  const updateSize = (e) => {
+    if (e.target.innerWidth <= 768) setMobileSize(true);
+    else setMobileSize(false);
   };
 
   useEffect(() => {
-    console.log(userAuth.currentUser);
-    updateSize(); // Initial check
+    window.innerWidth <= 768 ? setMobileSize(true) : setMobileSize(false);
     window.addEventListener("resize", updateSize);
     return () => {
       window.removeEventListener("resize", updateSize);
     };
   }, []);
 
-  return (
-    <Wrapper>
-      {mobileSize ? <MobileHeader /> : <User />}
-      <Container>
-        {mobileSize ? <MobliePostList /> : <Sidebar />}
-        <Outlet />
-        <PostList />
-      </Container>
-      <Videomap isMobile={mobileSize}>
-        <Video />
-      </Videomap>
-    </Wrapper>
-  );
+  return <>{mobileSize ? <MobilePostList /> : <PostList />}</>;
 };
 
 export default MainPage;

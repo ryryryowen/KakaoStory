@@ -4,7 +4,7 @@ import { darkTheme, lightTheme } from "./styles/Theme";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { GlobalStyles, mixins } from "./styles/GlobalStyles.styles";
 import Layout from "./components/layout/Layout";
-import MainPage from "./components/Main/MainPage";
+import MainPage from "./pages/MainPage";
 import LoginPage from "./pages/LoginPage";
 import DetailPage from "./pages/DetailPage";
 import MyProfile from "./pages/MyProfile";
