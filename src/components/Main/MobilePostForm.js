@@ -149,7 +149,7 @@ const Grid = styled.div`
 
 const PostFormM = ({ layoutId, onClick }) => {
   return (
-    <Wrapper onClick={onClick} layoutId={layoutId}>
+    <Wrapper>
       <Container>
         <ContentBox>
           <Content>

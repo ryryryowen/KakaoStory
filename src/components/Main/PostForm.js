@@ -13,13 +13,14 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   border-radius: 20px;
-  transition: all 0.3s ease;
+  transition: all 0.3s;
   background: ${({ theme }) =>
     theme.bgColor === "var(--main-dark)" ? "#222" : theme.bgColor};
   &:hover {
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
   }
 `;
+
 const ContainerBox = styled.div`
   width: 900px;
   height: 350px;
@@ -31,6 +32,10 @@ const Images = styled.div`
   width: 350px;
   height: 350px;
   background: #efefef;
+  border-radius: 20px;
+  background-image: url(${(props) => props.image});
+  background-size: cover;
+  background-position: center;
   border-radius: 20px;
 `;
 const Text = styled.div`
@@ -61,6 +66,9 @@ const NameImage = styled.div`
   height: 50px;
   border-radius: 50%;
   background-color: #efefef;
+  background-image: url(${(props) => props.profileImage});
+  background-size: cover;
+  background-position: center;
 `;
 const NameText = styled.div`
   font-size: 18px;
@@ -182,29 +190,30 @@ const Img = styled.i`
   cursor: pointer;
 `;
 
-const PostForm = () => {
+const PostForm = ({ post }) => {
   return (
     <Wrapper>
       <Container>
         <ContainerBox>
-          <Images></Images>
+          <Images image={post.images[0]}></Images>
           <Text>
             <Name>
               <Names>
-                <NameImage></NameImage>
-                <NameText>lorem</NameText>
+                <NameImage profileImage={post.authorProfileImage}></NameImage>
+                <NameText>{post.authorName}</NameText>
               </Names>
-              <Day>Thu 2024.09.14</Day>
+              <Day>{post.postTime}</Day>
             </Name>
             <FormText>
-              <p>텍스트입니다텍스트입니다텍스트입니다 우헤헤헤헤</p>
+              <p>{post.title}</p>
             </FormText>
             <Icons>
               <Icon>
+                {/* 좋아요 및 댓글 수 계산 */}
                 <Heart className="fa-solid fa-heart"></Heart>
-                <IconText>3,000</IconText>
+                <IconText>{post?.likes || 0}</IconText>
                 <Commentt className="fa-regular fa-comment"></Commentt>
-                <IconText>250</IconText>
+                <IconText>{post?.comments ? post.comments.length : 0}</IconText>
                 <Plane className="fa-regular fa-paper-plane"></Plane>
               </Icon>
               <div>
