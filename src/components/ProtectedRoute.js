@@ -1,16 +1,17 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { userAuth } from "../configs/firebase";
 import { userKakaoCredentials } from "../routes/KakaoRedirect";
 
 const ProtectedRoute = ({ children }) => {
-  console.log(children);
   const loggedUser = userAuth.currentUser;
   const { user } = useContext(userKakaoCredentials);
-  if (loggedUser === null && user.isLoggedIn === false) {
-    return <Navigate to={"/login"} />;
-  }
-  return children;
+  useEffect(() => {
+    console.log(userAuth);
+    console.log(user.isLoggedIn)
+  }, []);
+
+  return loggedUser !== null ? children : <Navigate to={"/login"} />;
 };
 
 export default ProtectedRoute;

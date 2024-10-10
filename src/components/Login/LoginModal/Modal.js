@@ -249,6 +249,8 @@ const Modal = () => {
 
   const { user, setUser } = useContext(userKakaoCredentials);
 
+  if (user.isLoggedIn) navigate("/");
+
   const navigate = useNavigate();
 
   const listenResizeEvent = () => {

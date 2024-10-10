@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { auth, db, storage } from "../../configs/firebase";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -35,6 +34,9 @@ const Images = styled.div`
   width: 350px;
   height: 350px;
   background: #efefef;
+  background-image: url(${(props) => props.image});
+  background-size: cover;
+  background-position: center;
   border-radius: 20px;
 `;
 const Text = styled.div`
@@ -65,6 +67,9 @@ const NameImage = styled.div`
   height: 50px;
   border-radius: 50%;
   background-color: #efefef;
+  background-image: url(${(props) => props.profileImage});
+  background-size: cover;
+  background-position: center;
 `;
 const NameText = styled.div`
   font-size: 18px;
@@ -107,12 +112,10 @@ const Heart = styled.i`
     cursor: pointer;
   }
 `;
-
 const IconText = styled.p`
   font-size: 14px;
   color: #ccc;
 `;
-
 const Commentt = styled.i`
   color: #ccc;
   &:hover {
@@ -127,7 +130,6 @@ const Plane = styled.i`
     cursor: pointer;
   }
 `;
-
 const Ellipsis = styled.i`
   color: #ccc;
   &:hover {
@@ -135,7 +137,6 @@ const Ellipsis = styled.i`
     cursor: pointer;
   }
 `;
-
 const Comments = styled.div`
   width: 482px;
   height: 50px;
@@ -158,9 +159,7 @@ const Commentinput = styled.input`
   background: #efefef;
   border-radius: 15px;
   border: none;
-  color: black; /* 기본 색상 */
-  text-shadow: none; /* 기본 텍스트 그림자 없음 */
-  transition: color 0.2s ease; /* 색상 변화에 애니메이션 추가 */
+  color: black;
   padding: 0 90px 0 20px;
   outline: none;
 `;
@@ -185,29 +184,31 @@ const Img = styled.i`
   color: #666;
   cursor: pointer;
 `;
-const PostForm = () => {
+
+const PostForm = ({ post }) => {
   return (
     <Wrapper>
       <Container>
         <ContainerBox>
-          <Images></Images>
+          <Images image={post.images[0]}></Images>
           <Text>
             <Name>
               <Names>
-                <NameImage></NameImage>
-                <NameText>lorem</NameText>
+                <NameImage profileImage={post.authorProfileImage}></NameImage>
+                <NameText>{post.authorName}</NameText>
               </Names>
-              <Day>Thu 2024.09.14</Day>
+              <Day>{post.postTime}</Day>
             </Name>
             <FormText>
-              <p>텍스트입니다텍스트입니다텍스트입니다 우헤헤헤헤</p>
+              <p>{post.title}</p>
             </FormText>
             <Icons>
               <Icon>
+                {/* 좋아요 및 댓글 수 계산 */}
                 <Heart className="fa-solid fa-heart"></Heart>
-                <IconText>3,000</IconText>
+                <IconText>{post?.likes || 0}</IconText>
                 <Commentt className="fa-regular fa-comment"></Commentt>
-                <IconText>250</IconText>
+                <IconText>{post?.comments ? post.comments.length : 0}</IconText>
                 <Plane className="fa-regular fa-paper-plane"></Plane>
               </Icon>
               <div>

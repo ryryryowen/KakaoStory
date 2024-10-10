@@ -33,6 +33,8 @@ const MainPage = () => {
   const [selectedPost, setSelectedPost] = useState(null); // 선택한 게시물 데이터
   const [isWriteModalOpen, setIsWriteModalOpen] = useState(false); // WriteStoryModal 상태
   const [videoUrl, setVideoUrl] = useState("");
+
+  
   // 목업 게시글들
   const posts = [
     {
@@ -148,24 +150,23 @@ const MainPage = () => {
     },
   ];
 
-  // 게시물 클릭 시 Detail 모달 열기
+ 
   const openModal = (post) => {
     setSelectedPost(post);
     setIsModalOpen(true);
   };
 
-  // Detail 모달 닫기
+
   const closeModal = () => {
     setSelectedPost(null);
     setIsModalOpen(false);
   };
 
-  // WriteStoryModal 열기
   const openWriteModal = () => {
     setIsWriteModalOpen(true);
   };
 
-  // WriteStoryModal 닫기
+  
   const closeWriteModal = () => {
     setIsWriteModalOpen(false);
   };
@@ -205,7 +206,7 @@ const MainPage = () => {
         <DetailModal
           isOpen={isModalOpen}
           onClose={closeModal}
-          post={selectedPost} // post 객체로 프롭스 전달
+          post={selectedPost}
         />
       )}
     </PageContainer>
