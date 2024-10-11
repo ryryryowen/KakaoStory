@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { delay, motion } from "framer-motion";
+import React, { useContext, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import styled, { ThemeProvider } from "styled-components";
 import { lightTheme, darkTheme } from "../../../styles/Theme";
 import { DarkModeStateContext } from "../../../App";
@@ -18,7 +18,7 @@ const ModalWrapper = styled(motion.div)`
   position: fixed;
   bottom: 0;
   width: 100%;
-  height: 90%; /* 화면의 80%만 차지 */
+  height: 90%;
   background-color: ${({ theme }) => theme.bgColor};
   border-radius: 20px 20px 0 0;
   z-index: 1001;
@@ -33,7 +33,7 @@ const Header = styled.div`
   align-items: center;
   padding: 10px;
   font-size: 18px;
-  border-bottom: 1px solid ${({ theme }) => theme.fontColor}; /* 구분선 */
+  border-bottom: 1px solid ${({ theme }) => theme.fontColor};
 `;
 
 const CloseButton = styled.div`
@@ -49,9 +49,15 @@ const Content = styled.div`
 
 const Comment = styled.div`
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 15px;
+`;
+
+const CommentLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
 `;
 
 const CommentProfileImage = styled.img`
@@ -68,6 +74,15 @@ const CommentText = styled.div`
   color: ${({ theme }) => theme.fontColor};
   font-size: 14px;
   flex: 1;
+`;
+
+const LikeIcon = styled.i`
+  cursor: pointer;
+  font-size: 18px;
+  color: ${({ liked }) => (liked ? "#FFE900" : "#ccc")};
+  &:hover {
+    color: #ffe900;
+  }
 `;
 
 const MoreCommentsButton = styled.button`
@@ -115,65 +130,98 @@ const modalVariants = {
   visible: {
     y: "0%",
     transition: {
-      delay: 1,
-      duration: 0.3, // 애니메이션 지속 시간 설정
+      delay: 0.2,
+      duration: 0.3,
       ease: "easeInOut",
     },
   },
   exit: {
     y: "100%",
     transition: {
-      delay: 1,
-      duration: 0.3, // 닫힐 때 애니메이션 속도 설정
+      duration: 0.5,
       ease: "easeInOut",
     },
   },
 };
+
 const MobileModal = ({ isOpen, onClose, post }) => {
   const { darkmode } = useContext(DarkModeStateContext);
+  const [likedComments, setLikedComments] = useState([]);
 
-  if (!isOpen) return null;
+  const toggleLike = (index) => {
+    setLikedComments((prevLikedComments) => {
+      const updatedLikes = [...prevLikedComments];
+      updatedLikes[index] = !updatedLikes[index];
+      return updatedLikes;
+    });
+  };
 
   return (
     <ThemeProvider theme={darkmode ? darkTheme : lightTheme}>
-      <Overlay onClick={onClose} />
-      <ModalWrapper
-        variants={modalVariants}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        drag="y"
-        dragConstraints={{ top: 0, bottom: 0 }}
-        onDragEnd={(event, info) => {
-          if (info.offset.y > 300) onClose(); //300px 이상 드래그시 모달닫기
-        }}
-      >
-        <Header>
-          <div>댓글 {post.comments.length}</div>
-          <CloseButton onClick={onClose}>&times;</CloseButton>
-        </Header>
-        <Content>
-          {/* 댓글 리스트 */}
-          {post.comments.map((comment, index) => (
-            <Comment key={index}>
-              <CommentProfileImage
-                src={comment.profileImage || "/default-profile.png"}
-              />
-              <CommentText>
-                <strong>{comment.username}</strong>
-                <p>{comment.text}</p>
-              </CommentText>
-            </Comment>
-          ))}
-          <MoreCommentsButton>댓글 더보기</MoreCommentsButton>
-        </Content>
-
-        {/* 댓글 입력란 */}
-        <CommentInputContainer>
-          <CommentInput placeholder="댓글 작성하기..." />
-          <SubmitButton>작성</SubmitButton>
-        </CommentInputContainer>
-      </ModalWrapper>
+      <AnimatePresence onExitComplete={onClose}>
+        {isOpen && (
+          <>
+            <Overlay
+              onClick={() => {
+                onClose();
+              }}
+            />
+            <ModalWrapper
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              onDragEnd={(event, info) => {
+                if (info.offset.y > 100) {
+                  onClose();
+                }
+              }}
+            >
+              <Header>
+                <div>댓글 {post.comments.length}</div>
+                <CloseButton
+                  onClick={() => {
+                    onClose();
+                  }}
+                >
+                  &times;
+                </CloseButton>
+              </Header>
+              <Content>
+                {post.comments.map((comment, index) => (
+                  <Comment key={index}>
+                    <CommentLeft>
+                      <CommentProfileImage
+                        src={comment.profileImage || "/default-profile.png"}
+                      />
+                      <CommentText>
+                        <strong>{comment.username}</strong>
+                        <p>{comment.text}</p>
+                      </CommentText>
+                    </CommentLeft>
+                    <LikeIcon
+                      liked={likedComments[index]}
+                      className={
+                        likedComments[index]
+                          ? "fa-solid fa-heart"
+                          : "fa-regular fa-heart"
+                      }
+                      onClick={() => toggleLike(index)}
+                    />
+                  </Comment>
+                ))}
+                <MoreCommentsButton>댓글 더보기</MoreCommentsButton>
+              </Content>
+              <CommentInputContainer>
+                <CommentInput placeholder="댓글 작성하기..." />
+                <SubmitButton>작성</SubmitButton>
+              </CommentInputContainer>
+            </ModalWrapper>
+          </>
+        )}
+      </AnimatePresence>
     </ThemeProvider>
   );
 };

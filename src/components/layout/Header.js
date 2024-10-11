@@ -1,32 +1,30 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styled from "styled-components";
-
 import { AnimatePresence, motion } from "framer-motion";
+
 const Wrapper = styled.main`
   width: 100%;
   height: 60px;
-  /* background: #fff; */
   background: ${({ theme }) => theme.bgColor};
   display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 10px;
   position: fixed;
   z-index: 100;
-  @media screen and (max-width: 1240px) {
-    justify-content: start;
-  }
 `;
 const HeaderMain = styled.div`
   width: 430px;
   display: flex;
   align-items: center;
 `;
-const KakaoLogo = styled.img`
+
+const KakaoLogo = styled.div`
   width: 200px;
   height: 60px;
+  background: url(${"/kakaoLgo/kakaoLight.png"}) center/cover;
 `;
+
 const SearchBarHeader = styled.input`
   width: 220px;
   height: 35px;
@@ -40,7 +38,11 @@ const SearchBarHeader = styled.input`
       opacity: 0;
     }
   }
+  @media screen and (max-width: 1080px) {
+    display: none;
+  }
 `;
+
 const SearchBarHeaderValue = styled.span`
   display: flex;
   justify-content: center;
@@ -48,25 +50,32 @@ const SearchBarHeaderValue = styled.span`
   gap: 10px;
   position: absolute;
   left: 220px;
+  @media screen and (max-width: 1080px) {
+    display: none;
+  }
 `;
+
 const LeftIconHeader = styled.div`
   display: flex;
   gap: 15px;
   position: absolute;
   right: 15px;
-  font-size: 20px;
-  color: ${({ theme }) => theme.fontColor};
-  cursor: pointer;
   button {
+    border: none;
     background: none;
-
+    cursor: pointer;
+    color: ${({ theme }) => theme.fontColor};
     &:hover {
+      color: #fae100;
+      cursor: pointer;
     }
   }
 `;
+
 // 헤더 모달
+
 const AddStoryHeader = styled.button`
-  width: 30%;
+  width: 500px;
   height: 45px;
   border: none;
   border-radius: 40px;
@@ -76,17 +85,21 @@ const AddStoryHeader = styled.button`
   background: ${({ theme }) => theme.addStoryColor};
   transform: translate(-50%);
   cursor: pointer;
-
-  @media screen and (max-width: 1240px) {
-    position: static;
-    left: 0;
-    transform: translate(0);
+  @media screen and (max-width: 1760px) {
+    left: 60%;
   }
-
+  @media screen and (max-width: 1390px) {
+    left: 65%;
+  }
+  @media screen and (max-width: 1080px) {
+    left: 55%;
+    width: 430px;
+  }
   @media screen and (max-width: 768px) {
-    display: none; // 모바일에서 숨기기
+    display: none;
   }
 `;
+
 const Overlay = styled.div`
   display: ${({ isOpen }) => (isOpen ? "block" : "none")};
   width: 100%;
@@ -97,26 +110,39 @@ const Overlay = styled.div`
   align-items: center;
   top: 0;
 `;
-const Box = styled.input`
+
+const Box = styled.textarea`
   width: 500px;
   height: 250px;
-  // background: #fff;
   background: ${({ theme }) => theme.bgColor};
   color: ${({ theme }) => theme.fontColor};
   border-radius: 40px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
   border: 1px solid #fae100;
-  font-size: 16px;
+  font-size: 18px;
+  font-style: "kakaobig";
   position: absolute;
   top: 60px;
   left: 50%;
   transform: translateX(-50%);
   padding: 0 30px 170px;
   z-index: 100;
+  padding-top: 20px;
   &:focus {
     outline: none;
   }
+  @media screen and (max-width: 1760px) {
+    left: 60%;
+  }
+  @media screen and (max-width: 1390px) {
+    left: 65%;
+  }
+  @media screen and (max-width: 1080px) {
+    left: 55%;
+    width: 430px;
+  }
 `;
+
 const HeaderAddStroyOptions = styled.div`
   width: 500px;
   height: 25px;
@@ -129,7 +155,18 @@ const HeaderAddStroyOptions = styled.div`
   transform: translateX(-50%);
   padding: 0 30px;
   z-index: 100;
+  @media screen and (max-width: 1760px) {
+    left: 60%;
+  }
+  @media screen and (max-width: 1390px) {
+    left: 65%;
+  }
+  @media screen and (max-width: 1080px) {
+    left: 55%;
+    width: 430px;
+  }
 `;
+
 const HeaderAddStoryIcons = styled.div`
   width: 132px;
   height: 25px;
@@ -146,6 +183,7 @@ const HeaderAddStoryIcons = styled.div`
     }
   }
 `;
+
 const HeaderAddStoryButtons = styled.div`
   width: 150px;
   height: 30px;
@@ -159,6 +197,7 @@ const HeaderAddStoryButtons = styled.div`
     }
   }
 `;
+
 const CancelAddStoryButton = styled.button`
   background: none;
   border: 1px solid #ccc;
@@ -172,26 +211,32 @@ const UploadAddStoryButton = styled.button`
   border: none;
   color: #fff;
 `;
+
 function Header() {
   const [modalOpen, setModalOpen] = useState(false);
+
   const openModal = () => {
     setModalOpen(true);
   };
+
   const closeModal = () => {
     setModalOpen(false);
   };
+
   return (
     <Wrapper>
       <HeaderMain>
-        <KakaoLogo src={"/kakaoLogo.png"} />
+        <KakaoLogo />
         <SearchBarHeader type="text" id="searchBarHeader" />
         <SearchBarHeaderValue>
           <i className="fa-solid fa-magnifying-glass"></i>검색
         </SearchBarHeaderValue>
       </HeaderMain>
+
       <AddStoryHeader onClick={openModal}>
         오늘의 스토리를 들려주세요.
       </AddStoryHeader>
+
       <Overlay isOpen={modalOpen}>
         <Box placeholder="오늘 하루 기억하고 싶은 순간이 있나요?" />
         <HeaderAddStroyOptions>
@@ -209,11 +254,18 @@ function Header() {
         </HeaderAddStroyOptions>
       </Overlay>
       <LeftIconHeader>
-        <i class="fa-solid fa-user-group"></i>
-        <i class="fa-regular fa-bell"></i>
-        <i class="fa-regular fa-circle-user"></i>
+        <button>
+          <i class="fa-solid fa-user-group"></i>
+        </button>
+        <button>
+          <i class="fa-regular fa-bell"></i>
+        </button>
+        <button>
+          <i class="fa-regular fa-circle-user"></i>
+        </button>
       </LeftIconHeader>
     </Wrapper>
   );
 }
+
 export default Header;
