@@ -1,11 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { auth, db, storage } from "../../configs/firebase";
+import { db } from "../../configs/firebase";
+import {
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 
 const Wrapper = styled.div`
   width: 100%;
 `;
-
 const Container = styled.div`
   width: 950px;
   height: 400px;
@@ -20,7 +28,6 @@ const Container = styled.div`
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
   }
 `;
-
 const ContainerBox = styled.div`
   width: 900px;
   height: 350px;
@@ -38,6 +45,7 @@ const Images = styled.div`
   background-position: center;
   border-radius: 20px;
 `;
+
 const Text = styled.div`
   width: 500px;
   height: 350px;
@@ -46,6 +54,7 @@ const Text = styled.div`
   justify-content: center;
   align-items: center;
 `;
+
 const Name = styled.div`
   width: 500px;
   height: 50px;
@@ -54,6 +63,7 @@ const Name = styled.div`
   margin-bottom: 35px;
   gap: 35px;
 `;
+
 const Names = styled.div`
   display: flex;
   align-items: center;
@@ -61,6 +71,7 @@ const Names = styled.div`
   justify-content: center;
   align-items: center;
 `;
+
 const NameImage = styled.div`
   width: 50px;
   height: 50px;
@@ -70,11 +81,13 @@ const NameImage = styled.div`
   background-size: cover;
   background-position: center;
 `;
+
 const NameText = styled.div`
   font-size: 18px;
   font-weight: bold;
   color: ${({ isDarkMode, theme }) => (isDarkMode ? "#fff" : theme.fontColor)};
 `;
+
 const Day = styled.div`
   display: flex;
   align-items: center;
@@ -82,6 +95,7 @@ const Day = styled.div`
   font-size: 14px;
   color: ${({ isDarkMode, theme }) => (isDarkMode ? "#fff" : theme.fontColor)};
 `;
+
 const FormText = styled.div`
   width: 500px;
   height: 350px;
@@ -89,6 +103,7 @@ const FormText = styled.div`
   font-size: 16px;
   color: ${({ isDarkMode, theme }) => (isDarkMode ? "#fff" : theme.fontColor)};
 `;
+
 const Icons = styled.div`
   width: 500px;
   height: 50px;
@@ -98,12 +113,14 @@ const Icons = styled.div`
   margin-bottom: 32px;
   font-size: 20px;
 `;
+
 const Icon = styled.div`
   display: flex;
   gap: 14px;
   justify-content: center;
   align-items: center;
 `;
+
 const Heart = styled.i`
   color: #ccc;
   &:hover {
@@ -124,6 +141,7 @@ const Commentt = styled.i`
     cursor: pointer;
   }
 `;
+
 const Plane = styled.i`
   color: #ccc;
   &:hover {
@@ -145,17 +163,20 @@ const Comments = styled.div`
   height: 50px;
   display: flex;
 `;
+
 const Comment = styled.div`
   display: flex;
   align-items: center;
   gap: 22px;
 `;
+
 const CommentImage = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 50%;
   background: #efefef;
 `;
+
 const Commentinput = styled.input`
   width: 420px;
   height: 50px;
@@ -168,6 +189,7 @@ const Commentinput = styled.input`
   padding: 0 90px 0 20px;
   outline: none;
 `;
+
 const CommentIcon = styled.div`
   width: 450px;
   height: 50px;
@@ -175,6 +197,7 @@ const CommentIcon = styled.div`
   gap: 10px;
   position: relative;
 `;
+
 const Llink = styled.i`
   position: absolute;
   top: 35%;
@@ -182,6 +205,7 @@ const Llink = styled.i`
   color: #666;
   cursor: pointer;
 `;
+
 const Img = styled.i`
   position: absolute;
   top: 35%;
@@ -189,51 +213,159 @@ const Img = styled.i`
   color: #666;
   cursor: pointer;
 `;
+const Slider = styled.div`
+  display: ${({ isOpen }) => (isOpen ? "flex" : "none")};
+  flex-direction: column;
+  position: absolute;
+  bottom: 140px;
+  right: 0px;
+  transition: right 0.3s;
+  z-index: 1;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  gap: 10px;
+`;
 
-const PostForm = ({ post }) => {
+const Editbutton = styled.button`
+  border: none;
+  width: 60px;
+  height: 30px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  &:hover {
+    background: #ffe900;
+  }
+`;
+
+const Deletebutton = styled.button`
+  border: none;
+  width: 60px;
+  height: 30px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  &:hover {
+    background: #ffe900;
+  }
+`;
+const Post = ({ postData, onDelete }) => {
+  const { id, username, post, photo } = postData;
+
+  const [isSliderOpen, setSliderOpen] = useState(false);
+
+  const toggleSlider = () => {
+    setSliderOpen((prev) => !prev);
+  };
+
+  return (
+    <Container>
+      <ContainerBox>
+        <Images>
+          {photo && (
+            <img
+              src={photo}
+              alt="Post"
+              style={{ width: "100%", height: "100%", borderRadius: "20px" }}
+            />
+          )}
+        </Images>
+
+        <Text>
+          <Name>
+            <Names>
+              <NameImage />
+
+              <NameText>{username}</NameText>
+            </Names>
+
+            <Day>Thu 2024.09.14</Day>
+          </Name>
+
+          <FormText>
+            <p>{post}</p>
+          </FormText>
+
+          <Icons>
+            <Icon>
+              <Heart className="fa-solid fa-heart" />
+
+              <IconText>3,000</IconText>
+
+              <Commentt className="fa-regular fa-comment" />
+
+              <IconText>250</IconText>
+
+              <Plane className="fa-regular fa-paper-plane" />
+            </Icon>
+
+            <Ellipsis className="fa-solid fa-ellipsis" onClick={toggleSlider} />
+          </Icons>
+
+          <Comments>
+            <Comment>
+              <CommentImage />
+
+              <Commentinput type="text" placeholder="댓글 입력..." />
+            </Comment>
+
+            <CommentIcon>
+              <Llink className="fa-solid fa-link" />
+
+              <Img className="fa-regular fa-image" />
+            </CommentIcon>
+          </Comments>
+
+          <Slider isOpen={isSliderOpen}>
+            <Editbutton onClick={() => console.log("Edit post:", postData)}>
+              Edit
+            </Editbutton>
+
+            <Deletebutton onClick={() => onDelete(id)}>Delete</Deletebutton>
+          </Slider>
+        </Text>
+      </ContainerBox>
+    </Container>
+  );
+};
+
+const PostForm = () => {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    const postsQuery = query(
+      collection(db, "contents"),
+
+      orderBy("createdAt", "desc"),
+
+      limit(25)
+    );
+
+    const unsubscribe = onSnapshot(postsQuery, (snapshot) => {
+      const postsData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+
+        ...doc.data(),
+      }));
+
+      setPosts(postsData);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleDelete = async (id) => {
+    await deleteDoc(doc(db, "contents", id));
+  };
   return (
     <Wrapper>
-      <Container>
-        <ContainerBox>
-          <Images image={post.images[0]}></Images>
-          <Text>
-            <Name>
-              <Names>
-                <NameImage profileImage={post.authorProfileImage}></NameImage>
-                <NameText>{post.authorName}</NameText>
-              </Names>
-              <Day>{post.postTime}</Day>
-            </Name>
-            <FormText>
-              <p>{post.title}</p>
-            </FormText>
-            <Icons>
-              <Icon>
-                {/* 좋아요 및 댓글 수 계산 */}
-                <Heart className="fa-solid fa-heart"></Heart>
-                <IconText>{post?.likes || 0}</IconText>
-                <Commentt className="fa-regular fa-comment"></Commentt>
-                <IconText>{post?.comments ? post.comments.length : 0}</IconText>
-                <Plane className="fa-regular fa-paper-plane"></Plane>
-              </Icon>
-              <div>
-                <Ellipsis className="fa-solid fa-ellipsis"></Ellipsis>
-              </div>
-            </Icons>
-            <Comments>
-              <Comment>
-                <CommentImage></CommentImage>
-                <Commentinput type="text" />
-              </Comment>
-              <CommentIcon>
-                <Llink className="fa-solid fa-link"></Llink>
-                <Img className="fa-regular fa-image"></Img>
-              </CommentIcon>
-            </Comments>
-          </Text>
-        </ContainerBox>
-      </Container>
+      {posts.map((postData) => (
+        <Post key={postData.id} postData={postData} onDelete={handleDelete} />
+      ))}
     </Wrapper>
   );
 };
+
 export default PostForm;

@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import styled, { ThemeProvider } from "styled-components";
 import { lightTheme, darkTheme } from "../../../styles/Theme";
 import { DarkModeStateContext } from "../../../App";
-
 const Overlay = styled.div`
   position: fixed;
   top: 0;
@@ -13,7 +12,6 @@ const Overlay = styled.div`
   background: rgba(0, 0, 0, 0.6);
   z-index: 1000;
 `;
-
 const ModalWrapper = styled(motion.div)`
   position: fixed;
   bottom: 0;
@@ -26,7 +24,6 @@ const ModalWrapper = styled(motion.div)`
   flex-direction: column;
   padding: 15px;
 `;
-
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
@@ -35,38 +32,32 @@ const Header = styled.div`
   font-size: 18px;
   border-bottom: 1px solid ${({ theme }) => theme.fontColor};
 `;
-
 const CloseButton = styled.div`
   cursor: pointer;
   font-size: 24px;
 `;
-
 const Content = styled.div`
   flex: 1;
   padding: 10px;
   overflow-y: auto;
 `;
-
 const Comment = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 15px;
 `;
-
 const CommentLeft = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
 `;
-
 const CommentProfileImage = styled.img`
   width: 40px;
   height: 40px;
   border-radius: 50%;
   background-color: #ccc;
 `;
-
 const CommentText = styled.div`
   background-color: ${({ theme }) => theme.bgSubColor};
   padding: 10px;
@@ -75,7 +66,6 @@ const CommentText = styled.div`
   font-size: 14px;
   flex: 1;
 `;
-
 const LikeIcon = styled.i`
   cursor: pointer;
   font-size: 18px;
@@ -84,7 +74,6 @@ const LikeIcon = styled.i`
     color: #ffe900;
   }
 `;
-
 const MoreCommentsButton = styled.button`
   width: 100%;
   padding: 10px;
@@ -94,7 +83,6 @@ const MoreCommentsButton = styled.button`
   cursor: pointer;
   margin-bottom: 20px;
 `;
-
 const CommentInputContainer = styled.div`
   display: flex;
   align-items: center;
@@ -102,7 +90,6 @@ const CommentInputContainer = styled.div`
   padding: 10px;
   border-top: 1px solid ${({ theme }) => theme.fontColor};
 `;
-
 const CommentInput = styled.input`
   flex: 1;
   padding: 10px;
@@ -115,7 +102,6 @@ const CommentInput = styled.input`
     outline: none;
   }
 `;
-
 const SubmitButton = styled.button`
   padding: 10px 15px;
   background-color: #ffe900;
@@ -124,7 +110,6 @@ const SubmitButton = styled.button`
   cursor: pointer;
   font-size: 16px;
 `;
-
 const modalVariants = {
   hidden: { y: "100%" },
   visible: {
@@ -143,11 +128,9 @@ const modalVariants = {
     },
   },
 };
-
 const MobileModal = ({ isOpen, onClose, post }) => {
   const { darkmode } = useContext(DarkModeStateContext);
   const [likedComments, setLikedComments] = useState([]);
-
   const toggleLike = (index) => {
     setLikedComments((prevLikedComments) => {
       const updatedLikes = [...prevLikedComments];
@@ -155,75 +138,71 @@ const MobileModal = ({ isOpen, onClose, post }) => {
       return updatedLikes;
     });
   };
-
   return (
     <ThemeProvider theme={darkmode ? darkTheme : lightTheme}>
-      <AnimatePresence onExitComplete={onClose}>
-        {isOpen && (
-          <>
-            <Overlay
-              onClick={() => {
+      {isOpen && (
+        <>
+          <Overlay
+            onClick={() => {
+              onClose();
+            }}
+          />
+          <ModalWrapper
+            variants={modalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            onDragEnd={(event, info) => {
+              if (info.offset.y > 100) {
                 onClose();
-              }}
-            />
-            <ModalWrapper
-              variants={modalVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              drag="y"
-              dragConstraints={{ top: 0, bottom: 0 }}
-              onDragEnd={(event, info) => {
-                if (info.offset.y > 100) {
+              }
+            }}
+          >
+            <Header>
+              <div>댓글 {post.comments.length}</div>
+              <CloseButton
+                onClick={() => {
                   onClose();
-                }
-              }}
-            >
-              <Header>
-                <div>댓글 {post.comments.length}</div>
-                <CloseButton
-                  onClick={() => {
-                    onClose();
-                  }}
-                >
-                  &times;
-                </CloseButton>
-              </Header>
-              <Content>
-                {post.comments.map((comment, index) => (
-                  <Comment key={index}>
-                    <CommentLeft>
-                      <CommentProfileImage
-                        src={comment.profileImage || "/default-profile.png"}
-                      />
-                      <CommentText>
-                        <strong>{comment.username}</strong>
-                        <p>{comment.text}</p>
-                      </CommentText>
-                    </CommentLeft>
-                    <LikeIcon
-                      liked={likedComments[index]}
-                      className={
-                        likedComments[index]
-                          ? "fa-solid fa-heart"
-                          : "fa-regular fa-heart"
-                      }
-                      onClick={() => toggleLike(index)}
+                }}
+              >
+                &times;
+              </CloseButton>
+            </Header>
+            <Content>
+              {post.comments.map((comment, index) => (
+                <Comment key={index}>
+                  <CommentLeft>
+                    <CommentProfileImage
+                      src={comment.profileImage || "/default-profile.png"}
                     />
-                  </Comment>
-                ))}
-                <MoreCommentsButton>댓글 더보기</MoreCommentsButton>
-              </Content>
-              <CommentInputContainer>
-                <CommentInput placeholder="댓글 작성하기..." />
-                <SubmitButton>작성</SubmitButton>
-              </CommentInputContainer>
-            </ModalWrapper>
-          </>
-        )}
-      </AnimatePresence>
+                    <CommentText>
+                      <strong>{comment.username}</strong>
+                      <p>{comment.text}</p>
+                    </CommentText>
+                  </CommentLeft>
+                  <LikeIcon
+                    liked={likedComments[index]}
+                    className={
+                      likedComments[index]
+                        ? "fa-solid fa-heart"
+                        : "fa-regular fa-heart"
+                    }
+                    onClick={() => toggleLike(index)}
+                  />
+                </Comment>
+              ))}
+              <MoreCommentsButton>댓글 더보기</MoreCommentsButton>
+            </Content>
+            <CommentInputContainer>
+              <CommentInput placeholder="댓글 작성하기..." />
+              <SubmitButton>작성</SubmitButton>
+            </CommentInputContainer>
+          </ModalWrapper>
+        </>
+      )}
     </ThemeProvider>
   );
 };
-
 export default MobileModal;

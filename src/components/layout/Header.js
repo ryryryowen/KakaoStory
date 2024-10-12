@@ -1,8 +1,16 @@
-import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useState, useRef } from "react";
+import {
+  addDoc,
+  collection,
+  updateDoc,
+  FirestoreError,
+} from "firebase/firestore";
+import { auth, db, storage } from "../../firebase";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import styled from "styled-components";
 import { AnimatePresence, motion } from "framer-motion";
-
+import { Link } from "react-router-dom";
 const Wrapper = styled.main`
   width: 100%;
   height: 60px;
@@ -18,13 +26,12 @@ const HeaderMain = styled.div`
   display: flex;
   align-items: center;
 `;
-
 const KakaoLogo = styled.div`
   width: 200px;
   height: 60px;
+  cursor: pointer;
   background: url(${"/kakaoLgo/kakaoLight.png"}) center/cover;
 `;
-
 const SearchBarHeader = styled.input`
   width: 220px;
   height: 35px;
@@ -42,7 +49,6 @@ const SearchBarHeader = styled.input`
     display: none;
   }
 `;
-
 const SearchBarHeaderValue = styled.span`
   display: flex;
   justify-content: center;
@@ -54,7 +60,6 @@ const SearchBarHeaderValue = styled.span`
     display: none;
   }
 `;
-
 const LeftIconHeader = styled.div`
   display: flex;
   gap: 15px;
@@ -71,9 +76,6 @@ const LeftIconHeader = styled.div`
     }
   }
 `;
-
-// 헤더 모달
-
 const AddStoryHeader = styled.button`
   width: 500px;
   height: 45px;
@@ -99,7 +101,6 @@ const AddStoryHeader = styled.button`
     display: none;
   }
 `;
-
 const Overlay = styled.div`
   display: ${({ isOpen }) => (isOpen ? "block" : "none")};
   width: 100%;
@@ -110,8 +111,10 @@ const Overlay = styled.div`
   align-items: center;
   top: 0;
 `;
-
 const Box = styled.textarea`
+  background: ${({ theme }) => theme.bgColor};
+  padding: 10px;
+  border-radius: 20px;
   width: 500px;
   height: 250px;
   background: ${({ theme }) => theme.bgColor};
@@ -142,7 +145,6 @@ const Box = styled.textarea`
     width: 430px;
   }
 `;
-
 const HeaderAddStroyOptions = styled.div`
   width: 500px;
   height: 25px;
@@ -166,7 +168,6 @@ const HeaderAddStroyOptions = styled.div`
     width: 430px;
   }
 `;
-
 const HeaderAddStoryIcons = styled.div`
   width: 132px;
   height: 25px;
@@ -183,7 +184,6 @@ const HeaderAddStoryIcons = styled.div`
     }
   }
 `;
-
 const HeaderAddStoryButtons = styled.div`
   width: 150px;
   height: 30px;
@@ -197,7 +197,6 @@ const HeaderAddStoryButtons = styled.div`
     }
   }
 `;
-
 const CancelAddStoryButton = styled.button`
   background: none;
   border: 1px solid #ccc;
@@ -211,18 +210,78 @@ const UploadAddStoryButton = styled.button`
   border: none;
   color: #fff;
 `;
-
-function Header() {
-  const [modalOpen, setModalOpen] = useState(false);
-
-  const openModal = () => {
-    setModalOpen(true);
+const Closebutton = styled.button`
+  width: 70px;
+  height: 30px;
+  background: #ccc;
+  color: #fff;
+  border: none;
+  font-size: 14px;
+`;
+const FileInput = styled.input`
+  display: none; // 숨기기
+`;
+const Header = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [post, setPost] = useState("");
+  const [file, setFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const fileInputRef = useRef(null);
+  const maxFileSize = 7 * 1024 * 1024;
+  const onChange = (e) => {
+    setPost(e.target.value);
   };
-
-  const closeModal = () => {
-    setModalOpen(false);
+  const onFileChange = (e) => {
+    const { files } = e.target;
+    if (files && files.length === 1) {
+      if (files[0].size > maxFileSize) {
+        alert("업로드할 수 있는 최대 용량은 7MB입니다!");
+        return;
+      }
+      setFile(files[0]);
+    }
   };
-
+  const onSubmit = async (e) => {
+    const user = auth.currentUser;
+    console.log(user);
+    e.preventDefault();
+    if (isLoading || post === "" || post.length > 180) return;
+    try {
+      setIsLoading(true);
+      const docRef = await addDoc(collection(db, "contents"), {
+        post,
+        createdAt: Date.now(),
+      });
+      if (file) {
+        const locationRef = ref(
+          storage,
+          `contents/I1dO5nloejTIesBcTUuf/${docRef.id}`
+        );
+        const result = await uploadBytes(locationRef, file);
+        const url = await getDownloadURL(result.ref);
+        const fileType = file.type;
+        if (fileType.startsWith("image/")) {
+          await updateDoc(docRef, { photo: url });
+        } else if (fileType.startsWith("video/")) {
+          await updateDoc(docRef, { video: url });
+        }
+      }
+      setPost("");
+      setFile(null);
+      setIsModalOpen(false);
+    } catch (e) {
+      if (e instanceof FirestoreError) {
+        console.error(e);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const handleCancel = () => {
+    setPost("");
+    setFile(null);
+    setIsModalOpen(false);
+  };
   return (
     <Wrapper>
       <HeaderMain>
@@ -232,40 +291,53 @@ function Header() {
           <i className="fa-solid fa-magnifying-glass"></i>검색
         </SearchBarHeaderValue>
       </HeaderMain>
-
-      <AddStoryHeader onClick={openModal}>
+      <AddStoryHeader onClick={() => setIsModalOpen(true)}>
         오늘의 스토리를 들려주세요.
       </AddStoryHeader>
-
-      <Overlay isOpen={modalOpen}>
-        <Box placeholder="오늘 하루 기억하고 싶은 순간이 있나요?" />
+      <Overlay isOpen={isModalOpen}>
+        <Box
+          onChange={onChange}
+          value={post}
+          placeholder="오늘의 이야기를 들려주세요"
+          required
+        />
         <HeaderAddStroyOptions>
           <HeaderAddStoryIcons>
-            <i class="fa-solid fa-camera"></i>
-            <i class="fa-solid fa-music"></i>
-            <i class="fa-solid fa-link"></i>
+            <i
+              className="fa-solid fa-camera"
+              onClick={() => fileInputRef.current.click()}
+            ></i>
+            <i className="fa-solid fa-music"></i>
+            <i className="fa-solid fa-link"></i>
           </HeaderAddStoryIcons>
           <HeaderAddStoryButtons>
-            <CancelAddStoryButton onClick={closeModal}>
+            <CancelAddStoryButton onClick={handleCancel}>
               취소
             </CancelAddStoryButton>
-            <UploadAddStoryButton>올리기</UploadAddStoryButton>
+            <UploadAddStoryButton onClick={onSubmit} disabled={isLoading}>
+              {isLoading ? "업로드 중..." : "올리기"}
+            </UploadAddStoryButton>
           </HeaderAddStoryButtons>
         </HeaderAddStroyOptions>
+        <FileInput
+          type="file"
+          accept="video/*, image/*"
+          ref={fileInputRef}
+          onChange={onFileChange}
+        />
       </Overlay>
       <LeftIconHeader>
         <button>
-          <i class="fa-solid fa-user-group"></i>
+          <i className="fa-solid fa-user-group"></i>
         </button>
         <button>
-          <i class="fa-regular fa-bell"></i>
+          <i className="fa-regular fa-bell"></i>
         </button>
         <button>
-          <i class="fa-regular fa-circle-user"></i>
+          <i className="fa-regular fa-circle-user"></i>
         </button>
       </LeftIconHeader>
     </Wrapper>
   );
-}
-
+};
 export default Header;
