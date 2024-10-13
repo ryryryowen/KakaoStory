@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 import { KAKAO_AUTH_URL } from "../../../configs/kakaologin";
 import { mixins } from "../../../styles/GlobalStyles.styles";
+import { DarkModeStateContext } from "../../../App";
 
 const Button = styled.button`
   width: 100%;
@@ -24,7 +25,8 @@ const Button = styled.button`
     order: 3;
     margin-bottom: 40px;
     ${mixins.border({ color: "#ccc" })}
-    background: var(--main-white);
+    background: ${({ darkmode }) => (darkmode ? "none" : "var(--main-white)")};
+    color: ${({ darkmode }) => (darkmode ? "#ccc" : "#000")};
     svg,
     path {
       fill: var(--point-color);
@@ -32,6 +34,7 @@ const Button = styled.button`
     }
     &:hover {
       background: var(--point-color);
+      color: #000;
       ${mixins.border({ color: "transparent" })}
       svg,path {
         fill: black;
@@ -40,16 +43,15 @@ const Button = styled.button`
   }
 `;
 
-const KakaoLogin = ({ isRegisterMode }) => {
+const KakaoLogin = ({ isRegisterMode, darkmode }) => {
   const handleKakaoLogin = async (e) => {
     e.preventDefault();
     window.location.href = KAKAO_AUTH_URL;
     const params = new URLSearchParams();
-    
   };
 
   return (
-    <Button onClick={handleKakaoLogin}>
+    <Button darkmode={darkmode} onClick={handleKakaoLogin}>
       <svg
         width="24"
         height="24"

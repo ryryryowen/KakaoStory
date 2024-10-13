@@ -9,6 +9,7 @@ import { userKakaoCredentials } from "../../../routes/KakaoRedirect";
 import logo from "../../../images/kakaoLogoLight.png";
 import mobileLogo from "../../../images/kakaoLogoMobile.png";
 import lightThemeImg from "../../../images/kakaoLoginImgLight.png";
+import darkThemeImg from "../../../images/kakaoLoginImgDark.png";
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
@@ -462,8 +463,11 @@ const Modal = () => {
   };
 
   return (
-    <Wrapper>
-      <LoginModal className="mobile-inner">
+    <Wrapper style={{ background: darkmode && isResponsive && "#000" }}>
+      <LoginModal
+        className="mobile-inner"
+        style={{ background: darkmode ? "#000" : "fff" }}
+      >
         <LeftArea className="mobile-contents">
           <LogoImg
             src={!isResponsive ? logo : mobileLogo}
@@ -475,11 +479,14 @@ const Modal = () => {
             onSubmit={onFormSubmit}
             onKeyDown={handleKeyPress}
           >
-            <WelcomeTitle className="welcome-title">
+            <WelcomeTitle
+              style={{ color: darkmode ? "#fff" : "#000" }}
+              className="welcome-title"
+            >
               {!isResponsive ? welcomeText : "kakao "}
               {isResponsive && <b>story</b>}
             </WelcomeTitle>
-            <KakaoLogin isRegisterMode={registerMode} />
+            <KakaoLogin isRegisterMode={registerMode} darkmode={darkmode} />
             <LoginDivider className="mobile-divider">
               <DividerPart></DividerPart>
               <DividerText>
@@ -494,7 +501,14 @@ const Modal = () => {
             <InputBoxes className="mobile-input">
               <InputTitles
                 className="input-title"
-                style={{ color: isFocused === "id" && "#000" }}
+                style={{
+                  color:
+                    isFocused === "id" && darkmode
+                      ? "#fff"
+                      : isFocused !== "id"
+                      ? ""
+                      : "#000",
+                }}
               >
                 이메일 입력<span>*</span>
               </InputTitles>
@@ -506,7 +520,10 @@ const Modal = () => {
                 onBlur={toggleBlur}
                 onInvalid={handleInvalidEmail}
                 name="id"
-                style={{ border: isError.id ? "1px solid red" : "" }}
+                style={{
+                  border: isError.id ? "1px solid red" : "",
+                  color: darkmode ? "#fff" : "",
+                }}
                 initial={{ x: 0 }}
                 animate={
                   isError.id
@@ -519,7 +536,14 @@ const Modal = () => {
             <InputBoxes className="mobile-input">
               <InputTitles
                 className="input-title"
-                style={{ color: isFocused === "password" && "#000" }}
+                style={{
+                  color:
+                    isFocused === "password" && darkmode
+                      ? "#fff"
+                      : isFocused !== "password"
+                      ? ""
+                      : "#000",
+                }}
               >
                 비밀번호 입력 <span>*</span>
               </InputTitles>
@@ -530,7 +554,10 @@ const Modal = () => {
                 onBlur={toggleBlur}
                 name="password"
                 ref={pwRef}
-                style={{ border: isError.pw ? "1px solid red" : "" }}
+                style={{
+                  border: isError.pw ? "1px solid red" : "",
+                  color: darkmode ? "#fff" : "",
+                }}
                 initial={{ x: 0 }}
                 animate={
                   isError.pw
@@ -552,12 +579,12 @@ const Modal = () => {
               className="mobile-login-btn"
             ></EmailLoginBtn>
             <SubMenuWrapper className="mobile-submenu">
-              <SubMenus>
+              <SubMenus style={{ color: darkmode ? "#888" : "" }}>
                 <span className="find-id">아이디 찾기</span>
                 <span>|</span>
                 <span className="find-pw">비밀번호 찾기</span>
               </SubMenus>
-              <SubMenus>
+              <SubMenus style={{ color: darkmode ? "#ccc" : "" }}>
                 <span>
                   {!registerMode
                     ? "계정이 없으시다면?"
@@ -573,7 +600,10 @@ const Modal = () => {
         </LeftArea>
         {!isResponsive && (
           <RightArea className="right-area">
-            <img src={lightThemeImg} alt="lightThemeImg" />
+            <img
+              src={darkmode ? darkThemeImg : lightThemeImg}
+              alt="lightThemeImg"
+            />
           </RightArea>
         )}
       </LoginModal>
