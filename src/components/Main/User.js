@@ -9,7 +9,7 @@ const Modal = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.9);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -17,10 +17,67 @@ const Modal = styled.div`
 `;
 
 const ModalContent = styled.div`
+  width: 350px;
+  height: 90vh;
   background: white;
   padding: 20px;
   border-radius: 10px;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`;
+
+const StoryXMark = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 1.3rem;
+  color: #fff;
+`;
+
+const StoryTopRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const StoryBottomRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+`;
+
+const StoryUserNames = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  z-index: 100;
+`;
+
+const StoryImg = styled.div`
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: #eee;
+  border: 1px solid #ffe900;
+  z-index: 100;
+`;
+
+const StoryUserName = styled.div`
+  z-index: 100;
+`;
+
+const StoryTopRowItems = styled.div`
+  display: flex;
+  gap: 20px;
+  z-index: 100;
+`;
+
+const StoryTextarea = styled.input`
+  padding: 10px 75px 10px 15px;
+  border-radius: 20px;
+  z-index: 100;
 `;
 
 const Wrapper = styled.div`
@@ -30,13 +87,6 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
 `;
-// background: ${({ theme }) => //원래는 wrapper에 속해있음
-//   theme.bgColor === "var(--main-dark)" ? "#222" : theme.bgColor};
-
-// const VisibleContainer = styled.div`
-//   display: flex;
-//   width: 100%; /* 부모의 너비에 맞춤 */
-// `;
 
 const StoryListMain = styled(motion.div)`
   display: flex;
@@ -57,7 +107,7 @@ const Story = styled(motion.div)`
   cursor: pointer;
 
   span {
-    margin-top: 70px; /* 아이템과 이름 간격 */
+    margin-top: 85px; /* 아이템과 이름 간격 */
     font-size: 14px; /* 글자 크기 */
     text-align: center; /* 가운데 정렬 */
     color: ${({ theme }) => theme.fontColor};
@@ -146,25 +196,39 @@ function StoryMain() {
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
       >
-        {/* <VisibleContainer> */}
         <StoryListMain drag="x" dragConstraints={{ left: -1750, right: 0 }}>
           {StoryArray.map((item) => (
             <Story key={item.id} onClick={() => handleStoryClick(item)}>
-              {item.id}
               <span>{item.name}</span> {/* 이름 추가 */}
             </Story>
           ))}
         </StoryListMain>
-        {/* </VisibleContainer> */}
       </Wrapper>
 
       {modalOpen && (
         <Modal onClick={closeModal}>
           <ModalContent onClick={(e) => e.stopPropagation()}>
-            <h2>{selectedStory.name}</h2>
-            <p>아이디: {selectedStory.id}</p>
-            <button onClick={closeModal}>닫기</button>
+            <StoryTopRow>
+              <StoryUserNames>
+                <StoryImg>{selectedStory.Img}</StoryImg>
+                <StoryUserName>{selectedStory.name}</StoryUserName>
+              </StoryUserNames>
+              <StoryTopRowItems>
+                <i class="fa-solid fa-volume-xmark"></i>
+                <i class="fa-solid fa-ellipsis"></i>
+              </StoryTopRowItems>
+            </StoryTopRow>
+            <StoryBottomRow>
+              <StoryTextarea
+                placeholder={`${selectedStory.name}님에게 답장하기`}
+              />
+              <i class="fa-regular fa-heart"></i>
+              <i class="fa-regular fa-paper-plane"></i>
+            </StoryBottomRow>
           </ModalContent>
+          <StoryXMark onClick={closeModal}>
+            <i class="fa-solid fa-xmark"></i>
+          </StoryXMark>
         </Modal>
       )}
     </>

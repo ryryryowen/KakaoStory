@@ -11,15 +11,20 @@ const Overlay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 2000;
 `;
 
 const EditModal = styled.div`
-  width: 80%;
-  height: 70%;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   background: #fff;
   border-radius: 10px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2001;
   @media screen and (max-width: 768px) {
     width: 100%;
     height: 100%;
@@ -172,7 +177,8 @@ const DeleteButton = styled.button`
   color: #fff;
 `;
 
-function EditModalPostform() {
+const EditModalPostform = ({ onClose }) => {
+  console.log("EditModalPostform 렌더링됨");
   return (
     <Wrapper>
       <Overlay>
@@ -189,34 +195,34 @@ function EditModalPostform() {
               </EditNames>
               <EditTextArea>떼굴떼굴 굴러가는 자택경비원의 일상..</EditTextArea>
               <EditButtons>
-                <CancelButton>취소</CancelButton>
+                <CancelButton onClick={onClose}>취소</CancelButton>
                 <CompleteButton>완료</CompleteButton>
               </EditButtons>
               <EditEmotion>
-                <i class="fa-regular fa-face-smile"></i>
+                <i className="fa-regular fa-face-smile"></i>
                 <EditCount>0/2200</EditCount>
               </EditEmotion>
               <EditLocation>
                 위치추가
-                <i class="fa-solid fa-location-dot"></i>
+                <i className="fa-solid fa-location-dot"></i>
               </EditLocation>
               <EditComponent>
                 공동 작업자 추가
-                <i class="fa-solid fa-user-plus"></i>
+                <i className="fa-solid fa-user-plus"></i>
               </EditComponent>
               <EditAccess>
                 접근성
-                <i class="fa-solid fa-chevron-down"></i>
+                <i className="fa-solid fa-chevron-down"></i>
               </EditAccess>
             </EditDesc>
           </ButtonBar>
         </EditModal>
         <DeleteButton>
-          <i class="fa-solid fa-xmark"></i>
+          <i className="fa-solid fa-xmark"></i>
         </DeleteButton>
       </Overlay>
     </Wrapper>
   );
-}
+};
 
 export default EditModalPostform;

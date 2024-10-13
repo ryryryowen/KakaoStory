@@ -241,22 +241,30 @@ const Header = () => {
       setFile(files[0]);
     }
   };
+
   const onSubmit = async (e) => {
-    const user = auth.currentUser;
-    console.log(user);
     e.preventDefault();
+    const user = auth.currentUser;
+
+    if (post === "") alert("오늘의 스토리를 작성해주세요.");
+
     if (isLoading || post === "" || post.length > 180) return;
+
     try {
       setIsLoading(true);
+
       const docRef = await addDoc(collection(db, "contents"), {
+        postId: user.uid,
+        userId: user.email,
+        userName: user.displayName || user.email.split("@")[0],
         post,
         createdAt: Date.now(),
+        likes: 0,
+        comments: [],
       });
+
       if (file) {
-        const locationRef = ref(
-          storage,
-          `contents/I1dO5nloejTIesBcTUuf/${docRef.id}`
-        );
+        const locationRef = ref(storage, `contents/postsImg/${docRef.id}`);
         const result = await uploadBytes(locationRef, file);
         const url = await getDownloadURL(result.ref);
         const fileType = file.type;
@@ -266,6 +274,7 @@ const Header = () => {
           await updateDoc(docRef, { video: url });
         }
       }
+
       setPost("");
       setFile(null);
       setIsModalOpen(false);
@@ -277,11 +286,13 @@ const Header = () => {
       setIsLoading(false);
     }
   };
+
   const handleCancel = () => {
     setPost("");
     setFile(null);
     setIsModalOpen(false);
   };
+
   return (
     <Wrapper>
       <HeaderMain>

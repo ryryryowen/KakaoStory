@@ -8,6 +8,7 @@ import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import EditModalPostform from "./EditModal";
 
 // 모달 창 스타일
 const ModalContent = styled.div`
@@ -242,9 +243,15 @@ const DetailModal = ({ isOpen, onClose, post }) => {
   const { darkmode } = useContext(DarkModeStateContext);
   const [likedComments, setLikedComments] = useState([]);
   const [likedPost, setLikedPost] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const handleEdit = () => {
-    alert("게시글을 수정할 수 있는 UI를 띄웁니다.");
+    setIsEditModalOpen(true);
+    console.log("Edit modal opened:", isEditModalOpen);
+  };
+
+  const handleEditClose = () => {
+    setIsEditModalOpen(false);
   };
 
   const handleDelete = () => {
@@ -372,6 +379,8 @@ const DetailModal = ({ isOpen, onClose, post }) => {
           </CommentInputContainer>
         </CommentsSection>
       </ModalContent>
+      {/* EditModalPostform을 조건부 렌더링 */}
+      {isEditModalOpen && <EditModalPostform onClose={handleEditClose} />}
     </ThemeProvider>
   );
 };
