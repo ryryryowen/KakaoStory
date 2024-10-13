@@ -17,11 +17,18 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
+import { DarkModeStateContext } from "../../../App";
 import { useNavigate } from "react-router-dom";
 
 const Wrapper = styled.div`
+  position: fixed;
+  z-index: 10000;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 100%;
   height: 100vh;
+  backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -232,6 +239,7 @@ const SubMenus = styled.div`
 `;
 
 const Modal = () => {
+  const navigate = useNavigate();
   const idRef = useRef();
   const pwRef = useRef();
   const valueIdRef = useRef();
@@ -247,11 +255,8 @@ const Modal = () => {
   const [welcomeText, setWelcomeText] = useState("돌아오신 것을 환영합니다!");
   const [loginBtnText, setLoginBtnText] = useState("이메일 로그인");
 
+  const { darkmode } = useContext(DarkModeStateContext);
   const { user, setUser } = useContext(userKakaoCredentials);
-
-  if (user.isLoggedIn) navigate("/");
-
-  const navigate = useNavigate();
 
   const listenResizeEvent = () => {
     if (window.innerWidth < 768) {
@@ -324,7 +329,6 @@ const Modal = () => {
           }
         );
         console.log("Kakao 로그아웃 완료");
-        alert("로그아웃 되셨습니다.");
         setUser({
           ...user,
           isLoggedIn: false,
@@ -334,6 +338,9 @@ const Modal = () => {
       }
     } catch (error) {
       console.log("로그아웃 중 오류 발생:", error);
+    } finally {
+      window.alert("로그아웃 되셨습니다.");
+      navigate("/");
     }
   };
 
@@ -354,7 +361,6 @@ const Modal = () => {
         alert(`${firebaseUser.email.split("@")[0]}님, 환영합니다!`);
         console.log(userAuth.currentUser);
         setUser({ ...user, isLoggedIn: true });
-        navigate("/");
       }
     } catch (e) {
       if (e instanceof FirebaseError) {
@@ -561,6 +567,7 @@ const Modal = () => {
                   {!registerMode ? "회원가입" : "로그인하기"}
                 </span>
               </SubMenus>
+              <button onClick={handleLogout}>로그아웃 테스트</button>
             </SubMenuWrapper>
           </LeftAreaWrapper>
         </LeftArea>

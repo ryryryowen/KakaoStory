@@ -41,6 +41,14 @@ const StoryTopRow = styled.div`
   align-items: center;
 `;
 
+const StoryMiddleRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 90%;
+  border: 1px solid;
+`;
+
 const StoryBottomRow = styled.div`
   display: flex;
   justify-content: center;
@@ -218,6 +226,7 @@ function StoryMain() {
                 <i class="fa-solid fa-ellipsis"></i>
               </StoryTopRowItems>
             </StoryTopRow>
+            <StoryMiddleRow></StoryMiddleRow>
             <StoryBottomRow>
               <StoryTextarea
                 placeholder={`${selectedStory.name}님에게 답장하기`}

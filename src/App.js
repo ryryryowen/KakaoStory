@@ -18,20 +18,19 @@ import { userAuth } from "./configs/firebase";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: (
-      <ProtectedRoute>
-        <Layout />
-      </ProtectedRoute>
-    ),
+    element: <Layout />,
     children: [
       { path: "", element: <MainPage /> },
       { path: "/detail/:id", element: <DetailPage /> },
-      { path: "/profile", element: <MyProfile /> },
+      {
+        path: "/profile",
+        element: (
+          <ProtectedRoute>
+            <MyProfile />
+          </ProtectedRoute>
+        ),
+      },
     ],
-  },
-  {
-    path: "/login",
-    element: <Modal />,
   },
   {
     path: "/auth/callback/kakaotalk",
