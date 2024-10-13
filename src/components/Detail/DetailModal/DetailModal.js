@@ -32,10 +32,10 @@ const ModalContent = styled.div`
 const PostDetailImage = styled.div`
   width: 620px;
   height: 100%;
-  background-color: ${({ theme }) => theme.bgSubColor};
+  /* background-color: ${({ theme }) => theme.bgSubColor};
   background-image: url(${(props) => props.image});
   background-size: cover;
-  background-position: center;
+  background-position: center; */
 `;
 
 const CommentsSection = styled.div`
@@ -246,21 +246,20 @@ const DetailModal = ({ isOpen, onClose, postId }) => {
   const [post, setPost] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+  console.log(post);
+
+  const fetchPost = async () => {
+    const postRef = doc(db, `contents/${postId}`);
+    const postDoc = await getDoc(postRef);
+    console.log(postDoc);
+    if (postDoc.exists()) {
+      setPost(postDoc.data());
+    } else {
+      console.log("문서가 없습니다!");
+    }
+  };
+
   useEffect(() => {
-    if (!postId) return;
-
-    console.log("DetailModal postId:", postId); // postId 로그 추가
-    const fetchPost = async () => {
-      const postRef = doc(db, "contents", postId);
-      const postDoc = await getDoc(postRef);
-      if (postDoc.exists()) {
-        
-        setPost(postDoc.data());
-      } else {
-        console.log("문서가 없습니다!");
-      }
-    };
-
     fetchPost();
   }, [postId]);
 
@@ -294,12 +293,23 @@ const DetailModal = ({ isOpen, onClose, postId }) => {
           navigation
           pagination={{ clickable: true }}
         >
-          {post.photo && post.photo.length > 0 ? (
-            post.photo.map((image, index) => (
+          {/* {post.photo && post.photo.length > 0 ? (
+            post?.photo?.map((image, index) => (
               <SwiperSlide key={index}>
                 <PostDetailImage image={image.url} />
               </SwiperSlide>
             ))
+          ) : (
+            <p>이미지가 없습니다.</p>
+          )} */}
+          {post.photo ? (
+            <SwiperSlide>
+              <PostDetailImage
+                style={{
+                  background: `url(${post?.photo}) center/cover no-repeat`,
+                }}
+              />
+            </SwiperSlide>
           ) : (
             <p>이미지가 없습니다.</p>
           )}
@@ -331,7 +341,7 @@ const DetailModal = ({ isOpen, onClose, postId }) => {
               </span>
             </EditDeleteIcons>
           </PostAuthorInfo>
-
+          {post.post}
           <CommentList>
             {post.comments && post.comments.length > 0 ? (
               post.comments.map((comment, index) => (

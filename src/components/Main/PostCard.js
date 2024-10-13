@@ -38,6 +38,8 @@ const PostCard = () => {
   const [selectedPost, setSelectedPost] = useState(null);
   const [posts, setPosts] = useState([]);
 
+  console.log(selectedPost);
+
   useEffect(() => {
     const postsQuery = query(
       collection(db, "contents"),

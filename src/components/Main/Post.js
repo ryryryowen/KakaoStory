@@ -295,6 +295,7 @@ const Post = ({ postData, openModal }) => {
 
     if (postDoc) {
       const data = postDoc.data();
+      console.log(data)
       const currentLikes = data.likes || 0;
       await updateDoc(postDocRef, {
         ...data,
@@ -319,7 +320,7 @@ const Post = ({ postData, openModal }) => {
   return (
     <div
       onClick={() => {
-        openModal(postId);
+        openModal(id);
       }}
     >
       <Container>

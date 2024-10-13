@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
 import {
   addDoc,
   collection,
@@ -11,6 +11,7 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import styled from "styled-components";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { DocIdContext } from "../../App";
 const Wrapper = styled.main`
   width: 100%;
   height: 60px;
