@@ -1,11 +1,11 @@
 import React, { useState, useContext, useEffect } from "react";
 import styled from "styled-components";
-import PostForm from "./PostForm";
 import DetailModal from "../Detail/DetailModal/DetailModal";
 import User from "./User";
 import { DarkModeStateContext } from "../../App";
-import { db } from "../../configs/firebase"; 
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore"; 
+import { db } from "../../configs/firebase";
+import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import PostForm from "./PostForm";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -52,7 +52,6 @@ const PostCard = () => {
       setPosts(postData);
     });
 
-
     return () => unsubscribe();
   }, []);
 
@@ -61,8 +60,8 @@ const PostCard = () => {
     setSelectedPost(null);
   };
 
-  const openModal = (post) => {
-    setSelectedPost(post);
+  const openModal = (postId) => {
+    setSelectedPost(postId);
     setIsModalOpen(true);
   };
 
@@ -70,16 +69,12 @@ const PostCard = () => {
     <Wrapper>
       <Container>
         <User />
-        {posts.map((post) => (
-          <div key={post.id} onClick={() => openModal(post)}>
-            <PostForm post={post} />
-          </div>
-        ))}
+        <PostForm posts={posts} openModal={openModal} />
         {isModalOpen && selectedPost && (
           <DetailModal
             isOpen={isModalOpen}
             onClose={closeModal}
-            post={selectedPost}
+            postId={selectedPost}
           />
         )}
       </Container>

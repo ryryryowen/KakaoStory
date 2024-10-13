@@ -1,8 +1,10 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import ModalOverlay from "./ModalOverlay";
 import { lightTheme, darkTheme } from "../../../styles/Theme";
 import { DarkModeStateContext } from "../../../App";
+import { db } from "../../../configs/firebase";
+import { doc, getDoc } from "firebase/firestore";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -239,15 +241,31 @@ const StyledSwiper = styled(Swiper)`
   }
 `;
 
-const DetailModal = ({ isOpen, onClose, post }) => {
+const DetailModal = ({ isOpen, onClose, postId }) => {
   const { darkmode } = useContext(DarkModeStateContext);
-  const [likedComments, setLikedComments] = useState([]);
-  const [likedPost, setLikedPost] = useState(false);
+  const [post, setPost] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!postId) return;
+
+    console.log("DetailModal postId:", postId); // postId 로그 추가
+    const fetchPost = async () => {
+      const postRef = doc(db, "contents", postId);
+      const postDoc = await getDoc(postRef);
+      if (postDoc.exists()) {
+        
+        setPost(postDoc.data());
+      } else {
+        console.log("문서가 없습니다!");
+      }
+    };
+
+    fetchPost();
+  }, [postId]);
 
   const handleEdit = () => {
     setIsEditModalOpen(true);
-    console.log("Edit modal opened:", isEditModalOpen);
   };
 
   const handleEditClose = () => {
@@ -265,18 +283,6 @@ const DetailModal = ({ isOpen, onClose, post }) => {
 
   const defaultProfileImage = "/testimages/default-profile.png";
 
-  const toggleLikeComment = (index) => {
-    setLikedComments((prevLikedComments) => {
-      const updatedLikes = [...prevLikedComments];
-      updatedLikes[index] = !updatedLikes[index];
-      return updatedLikes;
-    });
-  };
-
-  const toggleLikePost = () => {
-    setLikedPost((prevLikedPost) => !prevLikedPost);
-  };
-
   return (
     <ThemeProvider theme={darkmode ? darkTheme : lightTheme}>
       <ModalOverlay onClick={onClose} />
@@ -288,22 +294,26 @@ const DetailModal = ({ isOpen, onClose, post }) => {
           navigation
           pagination={{ clickable: true }}
         >
-          {post.images.map((image, index) => (
-            <SwiperSlide key={index}>
-              <PostDetailImage image={image} />
-            </SwiperSlide>
-          ))}
+          {post.photo && post.photo.length > 0 ? (
+            post.photo.map((image, index) => (
+              <SwiperSlide key={index}>
+                <PostDetailImage image={image.url} />
+              </SwiperSlide>
+            ))
+          ) : (
+            <p>이미지가 없습니다.</p>
+          )}
         </StyledSwiper>
         <CommentsSection>
           <PostAuthorInfo>
             <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
               <AuthorProfileImage
-                src={post.authorProfileImage || defaultProfileImage}
-                alt={post.authorName}
+                src={post.userProfileImg || defaultProfileImage}
+                alt={post.userName}
               />
               <AuthorInfoText>
-                <AuthorName>{post.authorName}</AuthorName>
-                <PostTime>{post.postTime}</PostTime>
+                <AuthorName>{post.userName}</AuthorName>
+                <PostTime>{post.createdAt}</PostTime>
               </AuthorInfoText>
             </div>
             <EditDeleteIcons>
@@ -322,64 +332,31 @@ const DetailModal = ({ isOpen, onClose, post }) => {
             </EditDeleteIcons>
           </PostAuthorInfo>
 
-          {/* 댓글 리스트 */}
           <CommentList>
             {post.comments && post.comments.length > 0 ? (
               post.comments.map((comment, index) => (
                 <Comment key={index}>
                   <CommentLeft>
                     <CommentProfileImage
-                      src={comment.profileImage || defaultProfileImage}
-                      alt={comment.username}
+                      src={comment.commentUserImg || defaultProfileImage}
+                      alt={comment.userId}
                     />
                     <CommentContent>
                       <CommentHeader>
-                        <CommentUserName>{comment.username}</CommentUserName>
-                        <CommentTime>{comment.time}</CommentTime>
+                        <CommentUserName>{comment.userId}</CommentUserName>
+                        <CommentTime>{comment.createdAt}</CommentTime>
                       </CommentHeader>
-                      <CommentText>{comment.text}</CommentText>
+                      <CommentText>{comment.content}</CommentText>
                     </CommentContent>
                   </CommentLeft>
-                  <CommentLikeIcon
-                    isLiked={likedComments[index]}
-                    onClick={() => toggleLikeComment(index)}
-                  >
-                    <i
-                      className={
-                        likedComments[index] === true
-                          ? "fa-solid fa-heart"
-                          : "fa-regular fa-heart"
-                      }
-                    ></i>
-                  </CommentLikeIcon>
                 </Comment>
               ))
             ) : (
               <p>댓글이 없습니다.</p>
             )}
           </CommentList>
-
-          {/* 좋아요, 댓글, 공유 아이콘 영역 */}
-          <InteractionIconsContainer>
-            <Icon isLiked={likedPost} onClick={toggleLikePost}>
-              <span className="material-symbols-outlined">favorite</span>
-            </Icon>
-            <Icon>
-              <span className="material-symbols-outlined">comment</span>
-            </Icon>
-            <Icon>
-              <span className="material-symbols-outlined">share</span>
-            </Icon>
-          </InteractionIconsContainer>
-
-          {/* 댓글 입력란 */}
-          <CommentInputContainer>
-            <CommentInput placeholder="댓글 작성하기..." />
-            <SubmitButton>작성</SubmitButton>
-          </CommentInputContainer>
         </CommentsSection>
       </ModalContent>
-      {/* EditModalPostform을 조건부 렌더링 */}
       {isEditModalOpen && <EditModalPostform onClose={handleEditClose} />}
     </ThemeProvider>
   );
