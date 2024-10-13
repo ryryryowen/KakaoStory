@@ -3,8 +3,9 @@ import styled, { ThemeProvider } from "styled-components";
 import ModalOverlay from "./ModalOverlay";
 import { lightTheme, darkTheme } from "../../../styles/Theme";
 import { DarkModeStateContext } from "../../../App";
+import { getAuth } from "firebase/auth";
 import { db } from "../../../configs/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -244,9 +245,13 @@ const StyledSwiper = styled(Swiper)`
 const DetailModal = ({ isOpen, onClose, postId }) => {
   const { darkmode } = useContext(DarkModeStateContext);
   const [post, setPost] = useState(null);
+  const [newComment, setNewComment] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [likedComments, setLikedComments] = useState([]);
+  const [likedPost, setLikedPost] = useState(false);
 
-  console.log(post);
+  const auth = getAuth();
 
   const fetchPost = async () => {
     const postRef = doc(db, `contents/${postId}`);
@@ -262,6 +267,55 @@ const DetailModal = ({ isOpen, onClose, postId }) => {
   useEffect(() => {
     fetchPost();
   }, [postId]);
+
+  const handleCommentChange = (e) => {
+    setNewComment(e.target.value);
+  };
+
+  const handleCommentSubmit = async () => {
+    if (!newComment.trim()) return; // 빈 댓글 방지
+    setIsSubmitting(true);
+
+    try {
+      const postRef = doc(db, "contents", postId);
+
+      // Firestore에서 현재 게시물 데이터를 다시 가져옴
+      const postDoc = await getDoc(postRef);
+      if (postDoc.exists()) {
+        const currentPost = postDoc.data();
+
+        // 기존 댓글 배열에 새 댓글 추가
+        const updatedComments = [
+          ...currentPost.comments, // 기존 댓글
+          {
+            commentId: Date.now().toString(),
+            userId: "현재 사용자 ID", // 실제 사용자 ID로 교체
+            commentUserImg: "현재 사용자 이미지 URL", // 실제 이미지 URL로 교체
+            content: newComment,
+            createdAt: new Date().toISOString(),
+          },
+        ];
+
+        // Firestore에 댓글 업데이트
+        await updateDoc(postRef, {
+          comments: updatedComments,
+        });
+
+        // 댓글 입력 후 상태 초기화
+        setNewComment("");
+        setPost((prevPost) => ({
+          ...prevPost,
+          comments: updatedComments, // 새 댓글이 반영된 상태로 업데이트
+        }));
+      } else {
+        console.log("게시글을 찾을 수 없습니다!");
+      }
+    } catch (error) {
+      console.error("댓글을 추가하는 중 오류 발생:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleEdit = () => {
     setIsEditModalOpen(true);
@@ -279,6 +333,18 @@ const DetailModal = ({ isOpen, onClose, postId }) => {
   };
 
   if (!isOpen || !post) return null;
+
+  const toggleLikeComment = (index) => {
+    setLikedComments((prevLikedComments) => {
+      const updatedLikes = [...prevLikedComments];
+      updatedLikes[index] = !updatedLikes[index];
+      return updatedLikes;
+    });
+  };
+
+  const toggleLikePost = () => {
+    setLikedPost((prevLikedPost) => !prevLikedPost);
+  };
 
   const defaultProfileImage = "/testimages/default-profile.png";
 
@@ -323,7 +389,9 @@ const DetailModal = ({ isOpen, onClose, postId }) => {
               />
               <AuthorInfoText>
                 <AuthorName>{post.userName}</AuthorName>
-                <PostTime>{post.createdAt}</PostTime>
+                <PostTime>
+                  {new Date(post.createdAt).toLocaleString("ko-KR")}
+                </PostTime>
               </AuthorInfoText>
             </div>
             <EditDeleteIcons>
@@ -341,7 +409,7 @@ const DetailModal = ({ isOpen, onClose, postId }) => {
               </span>
             </EditDeleteIcons>
           </PostAuthorInfo>
-          {post.post}
+          {/* {post.post} */}
           <CommentList>
             {post.comments && post.comments.length > 0 ? (
               post.comments.map((comment, index) => (
@@ -354,20 +422,67 @@ const DetailModal = ({ isOpen, onClose, postId }) => {
                     <CommentContent>
                       <CommentHeader>
                         <CommentUserName>{comment.userId}</CommentUserName>
-                        <CommentTime>{comment.createdAt}</CommentTime>
+                        <CommentTime>
+                          {new Date(post.createdAt).toLocaleString("ko-KR")}
+                        </CommentTime>
                       </CommentHeader>
                       <CommentText>{comment.content}</CommentText>
                     </CommentContent>
                   </CommentLeft>
+                  <CommentLikeIcon
+                    isLiked={likedComments[index]}
+                    onClick={() => toggleLikeComment(index)}
+                  >
+                    <i
+                      className={
+                        likedComments[index] === true
+                          ? "fa-solid fa-heart"
+                          : "fa-regular fa-heart"
+                      }
+                    ></i>
+                  </CommentLikeIcon>
                 </Comment>
               ))
             ) : (
               <p>댓글이 없습니다.</p>
             )}
           </CommentList>
+          <InteractionIconsContainer>
+            <Icon isLiked={likedPost} onClick={toggleLikePost}>
+              <span className="material-symbols-outlined">favorite</span>
+            </Icon>
+            <Icon>
+              <span className="material-symbols-outlined">comment</span>
+            </Icon>
+            <Icon>
+              <span className="material-symbols-outlined">share</span>
+            </Icon>
+          </InteractionIconsContainer>
+          <CommentInputContainer>
+            <CommentInput
+              value={newComment}
+              onChange={handleCommentChange}
+              placeholder="댓글 작성하기..."
+            />
+
+            <SubmitButton
+              onClick={handleCommentSubmit}
+              disabled={isSubmitting} // 댓글이 달리는동안 버튼 비활성 중복 방지
+            >
+              {isSubmitting ? "작성 중..." : "작성"}
+            </SubmitButton>
+          </CommentInputContainer>
         </CommentsSection>
       </ModalContent>
-      {isEditModalOpen && <EditModalPostform onClose={handleEditClose} />}
+      {isEditModalOpen && (
+        <EditModalPostform
+          onClose={handleEditClose}
+          postId={postId}
+          currentText={post.post}
+          userName={post.userName}
+          userProfileImg={post.userProfileImg}
+        />
+      )}
     </ThemeProvider>
   );
 };

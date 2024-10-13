@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { db } from "../../../configs/firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 const Wrapper = styled.div``;
 
@@ -52,15 +53,15 @@ const ButtonBar = styled.div`
   }
 `;
 
-const EditImg = styled.div`
+const EditImg = styled.img`
   width: 65%;
   height: 63vh;
   border-right: 2px solid #f1f1f1;
+  object-fit: cover;
   @media screen and (max-width: 768px) {
     border: none;
     width: 100%;
     height: 45vh;
-    border: 1px solid #f00;
   }
 `;
 
@@ -82,12 +83,14 @@ const EditNames = styled.div`
   align-items: center;
   padding: 5px;
 `;
-const EditUserImg = styled.div`
+
+const EditUserImg = styled.img`
   width: 35px;
   height: 35px;
   border-radius: 50%;
   border: 1px solid #f00;
 `;
+
 const EditUserName = styled.div`
   font-size: 1rem;
   color: #000;
@@ -98,58 +101,6 @@ const EditTextArea = styled.textarea`
   height: 200px;
   padding: 10px;
   border: none;
-`;
-
-const EditEmotion = styled.div`
-  height: 20px;
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 1px solid #f1f1f1;
-  padding: 7px;
-  i {
-    color: #777;
-  }
-  @media screen and (max-width: 768px) {
-    display: none;
-  }
-`;
-
-const EditCount = styled.div`
-  color: #777;
-`;
-
-const EditLocation = styled.div`
-  display: flex;
-  justify-content: space-between;
-  color: #777;
-  padding: 0 14px 0 7px;
-  @media screen and (max-width: 768px) {
-    display: none;
-  }
-`;
-
-const EditComponent = styled.div`
-  display: flex;
-  justify-content: space-between;
-  color: #777;
-  padding: 0 7px;
-  @media screen and (max-width: 768px) {
-    display: none;
-  }
-`;
-
-const EditAccess = styled.div`
-  display: flex;
-  justify-content: space-between;
-  color: #000;
-  font-weight: 600;
-  padding: 0 10px 7px 7px;
-  i {
-    color: #777;
-  }
-  @media screen and (max-width: 768px) {
-    display: none;
-  }
 `;
 
 const EditButtons = styled.div`
@@ -177,47 +128,91 @@ const DeleteButton = styled.button`
   color: #fff;
 `;
 
-const EditModalPostform = ({ onClose }) => {
-  console.log("EditModalPostform 렌더링됨");
+const EditModalPostform = ({ onClose, postId }) => {
+  const [editText, setEditText] = useState("");
+  const [userName, setUserName] = useState("");
+  const [userImage, setUserImage] = useState("");
+  const [photo, setPhoto] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchPostData = async () => {
+    try {
+      const postRef = doc(db, "contents", postId);
+      const postSnap = await getDoc(postRef);
+
+      if (postSnap.exists()) {
+        const postData = postSnap.data();
+        setEditText(postData.post || "");
+        setUserName(postData.userName || "");
+        setUserImage(postData.userProfileImg || "");
+        setPhoto(postData.photo || "");
+      } else {
+        console.log("해당 문서가 존재하지 않습니다.");
+      }
+    } catch (error) {
+      console.error("데이터 가져오기 오류:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (postId) {
+      fetchPostData();
+    }
+  }, [postId]);
+
+  const handleChange = (e) => {
+    setEditText(e.target.value);
+  };
+
+  const handleSubmit = async () => {
+    if (!editText.trim()) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const postRef = doc(db, "contents", postId);
+      await updateDoc(postRef, {
+        post: editText,
+      });
+      alert("수정 완료되었습니다.");
+      onClose();
+    } catch (error) {
+      console.error("수정 중 오류 발생:", error);
+      alert("수정 중 오류가 발생했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <Wrapper>
       <Overlay>
         <EditModal>
           <TopBar>
-            <div>정보수정</div>
+            <div>내 스토리 수정</div>
           </TopBar>
           <ButtonBar>
-            <EditImg />
+            <EditImg src={photo} alt="게시글 이미지" />
             <EditDesc>
               <EditNames>
-                <EditUserImg />
-                <EditUserName>1am_young</EditUserName>
+                <EditUserImg src={userImage} alt="사용자 이미지" />
+                <EditUserName>{userName}</EditUserName>
               </EditNames>
-              <EditTextArea>떼굴떼굴 굴러가는 자택경비원의 일상..</EditTextArea>
+              <EditTextArea
+                value={editText}
+                onChange={handleChange}
+                placeholder="내용을 입력하세요"
+              />
               <EditButtons>
                 <CancelButton onClick={onClose}>취소</CancelButton>
-                <CompleteButton>완료</CompleteButton>
+                <CompleteButton onClick={handleSubmit} disabled={isSubmitting}>
+                  {isSubmitting ? "저장 중..." : "완료"}
+                </CompleteButton>
               </EditButtons>
-              <EditEmotion>
-                <i className="fa-regular fa-face-smile"></i>
-                <EditCount>0/2200</EditCount>
-              </EditEmotion>
-              <EditLocation>
-                위치추가
-                <i className="fa-solid fa-location-dot"></i>
-              </EditLocation>
-              <EditComponent>
-                공동 작업자 추가
-                <i className="fa-solid fa-user-plus"></i>
-              </EditComponent>
-              <EditAccess>
-                접근성
-                <i className="fa-solid fa-chevron-down"></i>
-              </EditAccess>
             </EditDesc>
           </ButtonBar>
         </EditModal>
-        <DeleteButton>
+        <DeleteButton onClick={onClose}>
           <i className="fa-solid fa-xmark"></i>
         </DeleteButton>
       </Overlay>
