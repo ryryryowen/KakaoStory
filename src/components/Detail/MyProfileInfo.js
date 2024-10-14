@@ -3,6 +3,9 @@ import styled from "styled-components";
 import { mixins } from "../../styles/GlobalStyles.styles";
 import { DarkModeStateContext } from "../../App";
 import EditProfile from "./EditProfile";
+import { userAuth } from "../../configs/firebase";
+import { useNavigate } from "react-router-dom";
+import { userKakaoCredentials } from "../../routes/KakaoRedirect";
 
 const Wrapper = styled.div`
   width: 300px;
@@ -37,8 +40,8 @@ const MyProfile = styled.div`
   top: -100px;
   right: 0; */
   .profileImg {
-    width: 180px;
-    height: 180px;
+    width: 220px;
+    height: 220px;
     background: #ccc;
     border-radius: 50%;
     display: flex;
@@ -46,7 +49,8 @@ const MyProfile = styled.div`
     align-items: center;
     overflow: hidden;
     img {
-      width: 105%;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
     }
     svg {
@@ -74,8 +78,7 @@ const MyProfile = styled.div`
     flex-direction: row;
     .profileImg {
       min-width: 180px;
-      img {
-      }
+      height: 180px;
     }
   }
 `;
@@ -90,8 +93,6 @@ const Btns = styled.div`
   })};
   button {
     width: 100%;
-    /* background: #ddd; */
-    /* color: #333; */
     background: ${({ darkmode }) => (darkmode ? "#555" : "#ddd")};
     /* background: ${({ theme }) => theme.bgSubColor}; */
     color: ${({ theme }) => theme.fontColor};
@@ -116,48 +117,57 @@ const Btns = styled.div`
   }
 `;
 
-const MyProfileInfo = () => {
+const MyProfileInfo = ({ userInfo, setUserInfo }) => {
   const { darkmode } = useContext(DarkModeStateContext);
   const [modal, setModal] = useState(false);
+  const navigate = useNavigate();
+  const { setUser } = useContext(userKakaoCredentials);
 
   const handleModal = () => {
     setModal((prev) => !prev);
   };
+
+  const logoutEvent = async () => {
+    const logout = window.confirm(
+      `${userInfo.name}님의 계정에서 로그아웃 하시겠습니까?`
+    );
+    if (logout) {
+      await userAuth.signOut();
+      navigate("/");
+      setUser((prev) => ({
+        ...prev,
+        isLoggedIn: false,
+      }));
+    }
+  };
+
   return (
     <Wrapper>
-      <MyProfile darkmode={darkmode}>
+      <MyProfile $darkmode={darkmode}>
         <div className="profileImg">
-          <img src="https://blog.kakaocdn.net/dn/Knpew/btrt3QWFcFi/AAHlfhBm8ZWxWTYeA2KAV0/%EC%B9%B4%ED%86%A1%20%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84%20%EC%82%AC%EC%A7%84.jpg?attach=1&knm=img.jpg" />
-          {/* <svg
-            dataSlot="icon"
-            fill="none"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-            />
-          </svg> */}
+          <img
+            src={
+              userInfo.userPhoto ||
+              "https://blog.kakaocdn.net/dn/Knpew/btrt3QWFcFi/AAHlfhBm8ZWxWTYeA2KAV0/%EC%B9%B4%ED%86%A1%20%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84%20%EC%82%AC%EC%A7%84.jpg?attach=1&knm=img.jpg"
+            }
+          />
         </div>
         <div className="profileInfo">
-          <h5>송채영</h5>
-          <p>
-            상태매세지입니다. 상태매세지입니다. 상태매세지입니다.
-            상태매세지입니다. 상태매세지입니다. 상태매세지입니다.
-            상태매세지입니다. 상태매세지입니다. 상태매세지입니다.
-          </p>
+          <h5>{userInfo.name}</h5>
+          <p>{userInfo.userBio}</p>
         </div>
       </MyProfile>
-      <Btns darkmode={darkmode}>
+      <Btns $darkmode={darkmode}>
         <button onClick={handleModal}>내 정보 수정</button>
-        <button>글 작성</button>
+        <button onClick={logoutEvent}>로그아웃</button>
       </Btns>
-      {modal && <EditProfile modalOff={handleModal} />}
+      {modal && (
+        <EditProfile
+          modalOff={handleModal}
+          userInfo={userInfo}
+          setUserInfo={setUserInfo}
+        />
+      )}
     </Wrapper>
   );
 };

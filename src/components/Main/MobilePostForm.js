@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
+import { userAuth } from "../../configs/firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 
 const Wrapper = styled(motion.div)`
   width: 100%;
 `;
 
 const Container = styled.div`
+  margin: 0 auto;
   width: 390px;
   display: flex;
   flex-direction: column;
@@ -15,7 +19,7 @@ const Container = styled.div`
 `;
 
 const ContentBox = styled.div`
-  width: 370px;
+  width: 90%;
   height: 420px;
   overflow: hidden;
   border-radius: 15px;
@@ -40,6 +44,12 @@ const CotentImage = styled.div`
   background: #d9d9d9;
   border-radius: 15px;
   cursor: pointer;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
 const DescMain = styled.div`
@@ -104,6 +114,12 @@ const UserImg = styled.div`
   height: 35px;
   border-radius: 50%;
   background: #d9d9d9;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
 const UserName = styled.div``;
@@ -147,41 +163,92 @@ const Grid = styled.div`
   }
 `;
 
-const PostFormM = ({ layoutId, onClick }) => {
+const MobilePostForm = ({ postData }) => {
+  const user = userAuth.currentUser;
+  const [userImg, setUserImg] = useState(null);
+  const [writeName, setWriteName] = useState(null);
+  const [userData, setUserData] = useState({});
+
+  const { id, userName, post, photo, likes, postId, createdAt, comments } =
+    postData;
+
+  const getUserInfo = async (uid) => {
+    const userDocRef = doc(db, "users", uid);
+    const userDoc = await getDoc(userDocRef);
+    if (userDoc.exists()) {
+      const data = userDoc.data();
+      setUserData(data);
+    }
+  };
+
+  useEffect(() => {
+    if (postId) getUserInfo(postId);
+  }, []);
+
+  useEffect(() => {
+    setUserImg(userData.userPhoto);
+    setWriteName(userData.name);
+  }, [userData]);
+
+  const heartUp = async (e) => {
+    e.stopPropagation();
+    const postDocRef = doc(db, "contents", id);
+    const postDoc = await getDoc(postDocRef);
+
+    if (postDoc) {
+      const data = postDoc.data();
+      const currentLikes = data.likes || 0;
+      await updateDoc(postDocRef, {
+        ...data,
+        likes: currentLikes + 1,
+      });
+    }
+  };
+
   return (
     <Wrapper>
       <Container>
         <ContentBox>
           <Content>
-            <CotentImage />
+            <CotentImage>
+              <img src={photo} />
+            </CotentImage>
             <DescMain>
               <Icons>
                 <Icon>
                   <Heart>
-                    <i class="fa-solid fa-heart"></i>10k
+                    <i
+                      onClick={(e) => heartUp(e)}
+                      className="fa-solid fa-heart"
+                    ></i>
+                    {likes}
                   </Heart>
                   <i className="fa-regular fa-comment"></i>
-                  <i class="fa-regular fa-paper-plane"></i>
+                  <i className="fa-regular fa-paper-plane"></i>
                 </Icon>
-                <div>
-                  <i className="fa-solid fa-ellipsis"></i>
-                </div>
+                {user?.uid === postId && (
+                  <div>
+                    <i className="fa-solid fa-ellipsis"></i>
+                  </div>
+                )}
               </Icons>
               <TextMain>
-                <p>텍스트입니다텍스트입니다텍스트입니다 우헤헤...</p>
+                <p>{post}</p>
               </TextMain>
               <CommentArea>
                 <UserInfo>
                   <User>
-                    <UserImg />
-                    <UserName>48.6js</UserName>
+                    <UserImg>
+                      <img src={userImg} />
+                    </UserImg>
+                    <UserName>{writeName}</UserName>
                   </User>
-                  <Day>Thu 2024.09.14</Day>
+                  <Day>{new Date(createdAt).toLocaleDateString()}</Day>
                 </UserInfo>
                 <Comment />
                 <CommentIcon>
-                  <i class="fa-solid fa-link"></i>
-                  <i class="fa-regular fa-image"></i>
+                  <i className="fa-solid fa-link"></i>
+                  <i className="fa-regular fa-image"></i>
                 </CommentIcon>
               </CommentArea>
             </DescMain>
@@ -192,4 +259,4 @@ const PostFormM = ({ layoutId, onClick }) => {
   );
 };
 
-export default PostFormM;
+export default MobilePostForm;

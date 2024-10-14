@@ -13,6 +13,7 @@ const Wrapper = styled.div`
   left: 0;
   background: rgba(0, 0, 0, 0.5);
   z-index: 150;
+  cursor: pointer;
 `;
 
 const ContentWrapper = styled(motion.div)`
@@ -133,10 +134,11 @@ const Icon = styled.div`
   }
 `;
 
-const MoSidebarList = ({ openList, variants }) => {
+const MoSidebarList = ({ openList, variants, setWriteMode }) => {
   const containerDrag = useRef(null);
   const { darkmode, handleDarkmode } = useContext(DarkModeStateContext);
   const nevigate = useNavigate();
+
   const [isDragging, setIsDragging] = useState(false);
   const [velocity, setVelocity] = useState(0);
 
@@ -144,6 +146,14 @@ const MoSidebarList = ({ openList, variants }) => {
     e.stopPropagation();
     openList(e);
   };
+
+  const handleWrite = (e) => {
+    openList(e);
+    setTimeout(() => {
+      setWriteMode(true);
+    }, 500);
+  };
+
   const iconsList = [
     {
       label: "실시간 트렌드",
@@ -181,9 +191,15 @@ const MoSidebarList = ({ openList, variants }) => {
       onClick: handleDarkmode,
     },
     {
+      label: "북마크",
+      icon: "bookmark",
+      angle: "315deg",
+    },
+    {
       label: "스토리 올리기",
       icon: "add_box",
       angle: "270deg",
+      onClick: handleWrite,
     },
   ];
 
@@ -224,7 +240,7 @@ const MoSidebarList = ({ openList, variants }) => {
   }, []);
 
   return (
-    <Wrapper>
+    <Wrapper onClick={handleClick}>
       <ContentWrapper
         variants={variants}
         initial="initial"
@@ -232,6 +248,7 @@ const MoSidebarList = ({ openList, variants }) => {
         exit="leaving"
         darkmode={darkmode}
         ref={containerDrag}
+        onClick={(e) => e.stopPropagation()}
       >
         <ContentCenter onClick={handleClick}>
           <InnerCircle />
