@@ -1,13 +1,17 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import ModalOverlay from "./ModalOverlay";
 import { lightTheme, darkTheme } from "../../../styles/Theme";
 import { DarkModeStateContext } from "../../../App";
+import { getAuth } from "firebase/auth";
+import { db } from "../../../configs/firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import EditModalPostform from "./EditModal";
 
 // 모달 창 스타일
 const ModalContent = styled.div`
@@ -29,10 +33,10 @@ const ModalContent = styled.div`
 const PostDetailImage = styled.div`
   width: 620px;
   height: 100%;
-  background-color: ${({ theme }) => theme.bgSubColor};
+  /* background-color: ${({ theme }) => theme.bgSubColor};
   background-image: url(${(props) => props.image});
   background-size: cover;
-  background-position: center;
+  background-position: center; */
 `;
 
 const CommentsSection = styled.div`
@@ -238,13 +242,87 @@ const StyledSwiper = styled(Swiper)`
   }
 `;
 
-const DetailModal = ({ isOpen, onClose, post }) => {
+const DetailModal = ({ isOpen, onClose, postId }) => {
   const { darkmode } = useContext(DarkModeStateContext);
+  const [post, setPost] = useState(null);
+  const [newComment, setNewComment] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [likedComments, setLikedComments] = useState([]);
   const [likedPost, setLikedPost] = useState(false);
 
+  const auth = getAuth();
+
+  const fetchPost = async () => {
+    const postRef = doc(db, `contents/${postId}`);
+    const postDoc = await getDoc(postRef);
+    console.log(postDoc);
+    if (postDoc.exists()) {
+      setPost(postDoc.data());
+    } else {
+      console.log("문서가 없습니다!");
+    }
+  };
+
+  useEffect(() => {
+    fetchPost();
+  }, [postId]);
+
+  const handleCommentChange = (e) => {
+    setNewComment(e.target.value);
+  };
+
+  const handleCommentSubmit = async () => {
+    if (!newComment.trim()) return; // 빈 댓글 방지
+    setIsSubmitting(true);
+
+    try {
+      const postRef = doc(db, "contents", postId);
+
+      // Firestore에서 현재 게시물 데이터를 다시 가져옴
+      const postDoc = await getDoc(postRef);
+      if (postDoc.exists()) {
+        const currentPost = postDoc.data();
+
+        // 기존 댓글 배열에 새 댓글 추가
+        const updatedComments = [
+          ...currentPost.comments, // 기존 댓글
+          {
+            commentId: Date.now().toString(),
+            userId: "현재 사용자 ID", // 실제 사용자 ID로 교체
+            commentUserImg: "현재 사용자 이미지 URL", // 실제 이미지 URL로 교체
+            content: newComment,
+            createdAt: new Date().toISOString(),
+          },
+        ];
+
+        // Firestore에 댓글 업데이트
+        await updateDoc(postRef, {
+          comments: updatedComments,
+        });
+
+        // 댓글 입력 후 상태 초기화
+        setNewComment("");
+        setPost((prevPost) => ({
+          ...prevPost,
+          comments: updatedComments, // 새 댓글이 반영된 상태로 업데이트
+        }));
+      } else {
+        console.log("게시글을 찾을 수 없습니다!");
+      }
+    } catch (error) {
+      console.error("댓글을 추가하는 중 오류 발생:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleEdit = () => {
-    alert("게시글을 수정할 수 있는 UI를 띄웁니다.");
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setIsEditModalOpen(false);
   };
 
   const handleDelete = () => {
@@ -255,8 +333,6 @@ const DetailModal = ({ isOpen, onClose, post }) => {
   };
 
   if (!isOpen || !post) return null;
-
-  const defaultProfileImage = "/testimages/default-profile.png";
 
   const toggleLikeComment = (index) => {
     setLikedComments((prevLikedComments) => {
@@ -270,6 +346,8 @@ const DetailModal = ({ isOpen, onClose, post }) => {
     setLikedPost((prevLikedPost) => !prevLikedPost);
   };
 
+  const defaultProfileImage = "/testimages/default-profile.png";
+
   return (
     <ThemeProvider theme={darkmode ? darkTheme : lightTheme}>
       <ModalOverlay onClick={onClose} />
@@ -281,22 +359,39 @@ const DetailModal = ({ isOpen, onClose, post }) => {
           navigation
           pagination={{ clickable: true }}
         >
-          {post.images.map((image, index) => (
-            <SwiperSlide key={index}>
-              <PostDetailImage image={image} />
+          {/* {post.photo && post.photo.length > 0 ? (
+            post?.photo?.map((image, index) => (
+              <SwiperSlide key={index}>
+                <PostDetailImage image={image.url} />
+              </SwiperSlide>
+            ))
+          ) : (
+            <p>이미지가 없습니다.</p>
+          )} */}
+          {post.photo ? (
+            <SwiperSlide>
+              <PostDetailImage
+                style={{
+                  background: `url(${post?.photo}) center/cover no-repeat`,
+                }}
+              />
             </SwiperSlide>
-          ))}
+          ) : (
+            <p>이미지가 없습니다.</p>
+          )}
         </StyledSwiper>
         <CommentsSection>
           <PostAuthorInfo>
             <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
               <AuthorProfileImage
-                src={post.authorProfileImage || defaultProfileImage}
-                alt={post.authorName}
+                src={post.userProfileImg || defaultProfileImage}
+                alt={post.userName}
               />
               <AuthorInfoText>
-                <AuthorName>{post.authorName}</AuthorName>
-                <PostTime>{post.postTime}</PostTime>
+                <AuthorName>{post.userName}</AuthorName>
+                <PostTime>
+                  {new Date(post.createdAt).toLocaleString("ko-KR")}
+                </PostTime>
               </AuthorInfoText>
             </div>
             <EditDeleteIcons>
@@ -314,23 +409,24 @@ const DetailModal = ({ isOpen, onClose, post }) => {
               </span>
             </EditDeleteIcons>
           </PostAuthorInfo>
-
-          {/* 댓글 리스트 */}
+          {/* {post.post} */}
           <CommentList>
             {post.comments && post.comments.length > 0 ? (
               post.comments.map((comment, index) => (
                 <Comment key={index}>
                   <CommentLeft>
                     <CommentProfileImage
-                      src={comment.profileImage || defaultProfileImage}
-                      alt={comment.username}
+                      src={comment.commentUserImg || defaultProfileImage}
+                      alt={comment.userId}
                     />
                     <CommentContent>
                       <CommentHeader>
-                        <CommentUserName>{comment.username}</CommentUserName>
-                        <CommentTime>{comment.time}</CommentTime>
+                        <CommentUserName>{comment.userId}</CommentUserName>
+                        <CommentTime>
+                          {new Date(post.createdAt).toLocaleString("ko-KR")}
+                        </CommentTime>
                       </CommentHeader>
-                      <CommentText>{comment.text}</CommentText>
+                      <CommentText>{comment.content}</CommentText>
                     </CommentContent>
                   </CommentLeft>
                   <CommentLikeIcon
@@ -351,8 +447,6 @@ const DetailModal = ({ isOpen, onClose, post }) => {
               <p>댓글이 없습니다.</p>
             )}
           </CommentList>
-
-          {/* 좋아요, 댓글, 공유 아이콘 영역 */}
           <InteractionIconsContainer>
             <Icon isLiked={likedPost} onClick={toggleLikePost}>
               <span className="material-symbols-outlined">favorite</span>
@@ -364,14 +458,31 @@ const DetailModal = ({ isOpen, onClose, post }) => {
               <span className="material-symbols-outlined">share</span>
             </Icon>
           </InteractionIconsContainer>
-
-          {/* 댓글 입력란 */}
           <CommentInputContainer>
-            <CommentInput placeholder="댓글 작성하기..." />
-            <SubmitButton>작성</SubmitButton>
+            <CommentInput
+              value={newComment}
+              onChange={handleCommentChange}
+              placeholder="댓글 작성하기..."
+            />
+
+            <SubmitButton
+              onClick={handleCommentSubmit}
+              disabled={isSubmitting} // 댓글이 달리는동안 버튼 비활성 중복 방지
+            >
+              {isSubmitting ? "작성 중..." : "작성"}
+            </SubmitButton>
           </CommentInputContainer>
         </CommentsSection>
       </ModalContent>
+      {isEditModalOpen && (
+        <EditModalPostform
+          onClose={handleEditClose}
+          postId={postId}
+          currentText={post.post}
+          userName={post.userName}
+          userProfileImg={post.userProfileImg}
+        />
+      )}
     </ThemeProvider>
   );
 };

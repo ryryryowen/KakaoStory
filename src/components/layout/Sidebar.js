@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { mixins } from "../../styles/GlobalStyles.styles";
 import { useNavigate } from "react-router-dom";
 import { DarkModeStateContext } from "../../App";
+import { userKakaoCredentials } from "../../routes/KakaoRedirect";
 
 const Wrapper = styled.div`
   width: ${({ $showText }) => ($showText ? "360px" : "100px")};
@@ -64,9 +65,6 @@ const Wrapper = styled.div`
           > span {
             opacity: 1;
           }
-          > p {
-            /* opacity: ${({ $textOpacity }) => ($textOpacity ? 1 : 0)}; */
-          }
         }
         .overText {
           position: absolute;
@@ -97,7 +95,9 @@ const NavTop = styled.div`
   width: 100%;
 `;
 
-const NavBtm = styled.div``;
+const NavBtm = styled.div`
+  width: 100%;
+`;
 
 const PostListWrapper = styled.div`
   position: absolute;
@@ -152,10 +152,12 @@ const Sidebar = () => {
   const [showText, setShowText] = useState(false);
   const [textOpacity, setTextOpacity] = useState(false);
   const [showList, setShowList] = useState(false);
+  const [activeState, setActiveState] = useState(0);
 
   const { darkmode, handleDarkmode } = useContext(DarkModeStateContext);
+  const { user } = useContext(userKakaoCredentials);
 
-  const nevigate = useNavigate();
+  const navigate = useNavigate();
 
   const toggleText = () => {
     if (showText) {
@@ -173,22 +175,32 @@ const Sidebar = () => {
   }, [showText]);
 
   const goHome = (e) => {
-    nevigate("/");
+    navigate("/");
   };
 
   const goProfile = (e) => {
-    nevigate(`/profile`);
+    navigate(`/profile`);
   };
 
   const makePostList = (e) => {
     setShowList((prev) => !prev);
   };
 
+  const onHandleClick = (index, func) => {
+    setActiveState(index);
+    func();
+  };
+
   return (
     <Wrapper $showText={showText} $textOpacity={textOpacity} $flexProps>
       <NavTop>
         <ul className="mainList">
-          <li className="active" onClick={goHome}>
+          <li
+            className={activeState === 0 ? "active" : ""}
+            onClick={() => {
+              onHandleClick(0, goHome);
+            }}
+          >
             <span>
               <span className="material-symbols-outlined">home</span>
             </span>
@@ -339,7 +351,10 @@ const Sidebar = () => {
               </div>
             )}
           </li>
-          <li onClick={goProfile}>
+          <li
+            onClick={() => onHandleClick(1, goProfile)}
+            className={activeState === 1 ? "active" : ""}
+          >
             <span>
               <span className="material-symbols-outlined">account_circle</span>
             </span>

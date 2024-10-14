@@ -55,4 +55,22 @@ export const mixins = {
     outline:none;
   }
   `,
+  loginform: (btnProps) => `
+    width: 100%;
+    height: 50px;
+    ${mixins.flex()};
+    background: ${btnProps?.bg ?? "none"};
+    border-radius: 100px;
+    border: ${
+      btnProps?.border ?? mixins.border({ color: "#ccc" }).split(":")[1]
+    };
+    font-family: var(--kakao-big-regular);
+    font-size: ${btnProps?.fontsize ?? "16px"};
+    text-align: ${btnProps?.textalign ?? "left"};
+    cursor: pointer;
+    transition: all 0.3s;
+    &:hover {
+      ${btnProps?.hover ?? ""}
+    }
+  `,
 };

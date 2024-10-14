@@ -36,13 +36,13 @@ const FriendWrapper = styled.div`
           height: 40px;
           border-radius: 50%;
           background: #ddd;
+          overflow: hidden;
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
         }
-      }
-      .onoff {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: var(--point-color);
       }
       .followBtn {
         display: none;
@@ -56,20 +56,19 @@ const FriendWrapper = styled.div`
     display: block;
     margin-top: 30px;
     height: fit-content;
+    position: static;
     h5 {
       text-align: start;
     }
     ul {
       flex-direction: row;
       justify-content: space-between;
+      gap: 10px;
       li {
         flex-direction: column;
         gap: 10px;
         .friendInfo {
           flex-direction: column;
-        }
-        .onoff {
-          display: none;
         }
         .followBtn {
           display: block;
@@ -88,61 +87,63 @@ const FriendWrapper = styled.div`
   }
 `;
 
+const OnoffChange = styled.div`
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  /* background: var(--point-color); */
+  background: ${({ $stayUser }) => ($stayUser ? "var(--point-color)" : "#ccc")};
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const friendList = [
+  {
+    id: 0,
+    name: "송채영",
+    stayUser: false,
+    img: "https://firebasestorage.googleapis.com/v0/b/kakaostory-b8662.appspot.com/o/userImg%2FprofileImg%2FEuOdQqQd8ARwW0ZIF95Pvk87ZH73?alt=media&token=9e15f469-f1da-4626-b27c-364266f243b2",
+  },
+  {
+    id: 1,
+    name: "해오름",
+    stayUser: false,
+  },
+  {
+    id: 2,
+    name: "전진우",
+    stayUser: true,
+  },
+  {
+    id: 3,
+    name: "강혜정",
+    stayUser: false,
+  },
+  {
+    id: 4,
+    name: "김준영",
+    stayUser: true,
+  },
+];
+
 const ProfileFriend = () => {
   return (
     <FriendWrapper>
       <h5>추천친구</h5>
       <ul>
-        <li>
-          <div className="friendInfo">
-            <div>
-              <img />
+        {friendList.map((item) => (
+          <li key={item.id}>
+            <div className="friendInfo">
+              <div>
+                <img src={item.img} />
+              </div>
+              <p>{item.name}</p>
             </div>
-            <p>송채영</p>
-          </div>
-          <div className="onoff"></div>
-          <div className="followBtn">팔로우</div>
-        </li>
-        <li>
-          <div className="friendInfo">
-            <div>
-              <img />
-            </div>
-            <p>송채영</p>
-          </div>
-          <div className="onoff"></div>
-          <div className="followBtn">팔로우</div>
-        </li>
-        <li>
-          <div className="friendInfo">
-            <div>
-              <img />
-            </div>
-            <p>송채영</p>
-          </div>
-          <div className="onoff"></div>
-          <div className="followBtn">팔로우</div>
-        </li>
-        <li>
-          <div className="friendInfo">
-            <div>
-              <img />
-            </div>
-            <p>송채영</p>
-          </div>
-          <div className="onoff"></div>
-          <div className="followBtn">팔로우</div>
-        </li>
-        <li>
-          <div className="friendInfo">
-            <div>
-              <img />
-            </div>
-            <p>송채영</p>
-          </div>
-          <div className="onoff"></div>
-          <div className="followBtn">팔로우</div>
-        </li>
+            <OnoffChange $stayUser={item.stayUser}></OnoffChange>
+            <div className="followBtn">팔로우</div>
+          </li>
+        ))}
       </ul>
     </FriendWrapper>
   );

@@ -1,6 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
+import { storage, userAuth } from "../../configs/firebase";
+import { query } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { userKakaoCredentials } from "../../routes/KakaoRedirect";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -11,11 +15,6 @@ const Wrapper = styled.div`
   backdrop-filter: blur(3px);
   z-index: 300;
   cursor: pointer;
-  /* display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 20px; */
 `;
 
 const Modal = styled.div`
@@ -29,7 +28,6 @@ const Modal = styled.div`
   border-radius: 30px;
   font-family: var(--kakao-small-regular);
   padding: 30px 40px;
-
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -39,7 +37,6 @@ const Modal = styled.div`
     height: 100%;
     display: flex;
     flex-direction: column;
-    /* gap: 20px; */
     justify-content: space-between;
     h2 {
       font-size: 20px;
@@ -65,27 +62,55 @@ const Modal = styled.div`
           height: 80px;
           background: #d9d9d9;
           border-radius: 50%;
+          overflow: hidden;
+          img {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            z-index: 2;
+            object-fit: cover;
+          }
         }
         .userInfo {
-          font-size: 14px;
           p:nth-child(1) {
+            font-size: 18px;
             color: #333;
             margin-bottom: 6px;
+            height: 22px;
           }
           p:nth-child(2) {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            font-size: 14px;
             color: #aaa;
+            width: 220px;
+            height: 34px;
+            line-height: 120%;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
         }
       }
-      > button {
-        border: none;
-        background: var(--point-color);
-        padding: 8px 10px;
-        height: fit-content;
-        color: #fff;
-        border-radius: 10px;
-        cursor: pointer;
-        font-size: 16px;
+      .inputGroup {
+        display: flex;
+        gap: 10px;
+        > input[type="file"] {
+          display: none;
+        }
+        > label {
+          border: none;
+          background: var(--point-color);
+          padding: 8px 10px;
+          height: fit-content;
+          color: #fff;
+          border-radius: 10px;
+          cursor: pointer;
+          font-size: 16px;
+          &:nth-of-type(2) {
+            background: #999;
+          }
+        }
       }
     }
 
@@ -109,18 +134,33 @@ const Modal = styled.div`
           font-size: 20px;
         }
       }
-      p {
+      input[type="text"],
+      input[type="date"],
+      select {
         width: 100%;
+        border: none;
         padding: 6px;
         border-bottom: 2px solid #d9d9d9;
+        font-family: var(--kakao-small-regular);
+        font-size: 16px;
         cursor: pointer;
+        &::placeholder {
+          opacity: 1;
+          transition: all 0.3s;
+        }
+        &:focus {
+          outline: none;
+          border-bottom: 2px solid var(--point-color);
+          &::placeholder {
+            opacity: 0;
+          }
+        }
       }
     }
     .basicinfo,
     .kakaoinfo {
       display: flex;
       flex-direction: column;
-      /* gap: 20px; */
       h3 {
         font-size: 18px;
         letter-spacing: -0.32px;
@@ -158,7 +198,7 @@ const Modal = styled.div`
         padding: 3px;
         cursor: pointer;
       }
-      .switch[data-isOn="true"] {
+      .switch[data-ison="true"] {
         justify-content: flex-end;
         background: var(--point-color);
       }
@@ -170,6 +210,83 @@ const Modal = styled.div`
       }
     }
   }
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    height: 100%;
+    padding: 30px 15px;
+    gap: 0;
+    .profile {
+      width: 100%;
+      height: 80%;
+      margin: auto 0;
+      justify-content: center;
+      gap: 30px;
+      .profileEdit {
+        height: fit-content;
+        padding: 10px;
+        border-radius: 50px;
+        flex-direction: column;
+        gap: 10px;
+        .user {
+          .userInfo {
+            p:nth-child(1) {
+              font-size: 16px;
+              height: fit-content;
+            }
+            p:nth-child(2) {
+              font-size: 12px;
+              height: fit-content;
+              height: 28px;
+            }
+          }
+        }
+        .inputGroup {
+          > label {
+            padding: 6px 10px;
+            font-size: 12px;
+          }
+        }
+      }
+      .infoitem {
+        .icon {
+          width: 20px;
+          height: 20px;
+          span {
+            font-size: 24px;
+          }
+          i {
+            font-size: 16px;
+          }
+        }
+        input[type="text"],
+        input[type="date"],
+        select {
+          font-size: 14px;
+        }
+      }
+      .basicinfo,
+      .kakaoinfo {
+        h3 {
+          font-size: 16px;
+        }
+        > p {
+          font-size: 10px;
+        }
+      }
+      .profileThumbsup {
+        .profileThumbsup_text {
+          width: 80%;
+          h3 {
+            font-size: 16px;
+          }
+          p {
+            font-size: 10px;
+          }
+        }
+      }
+    }
+  }
 `;
 
 const SumbmitBtn = styled.button`
@@ -178,14 +295,62 @@ const SumbmitBtn = styled.button`
   border: none;
   border-radius: 6px;
   padding: 8px 80px;
-  background: ${({ changeContent }) =>
-    changeContent ? "var(--point-color)" : "#ccc"};
   cursor: pointer;
+  &.okSumbit {
+    background: var(--point-color);
+  }
+  &.unSubmit {
+    background: #ccc;
+  }
+  @media screen and (max-width: 768px) {
+    padding: 8px 50px;
+  }
 `;
 
-const EditProfile = ({ modalOff }) => {
-  const [changeContent, setChagneContent] = useState(false);
-  const [isOn, setIsOn] = useState(false);
+const BtnGroup = styled.div`
+  display: flex;
+  gap: 10px;
+  > button:nth-child(1) {
+    font-size: 20px;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 80px;
+    cursor: pointer;
+    background: #999;
+  }
+  @media screen and (max-width: 768px) {
+    > button:nth-child(1) {
+      padding: 8px 50px;
+    }
+  }
+`;
+
+const EditProfile = ({ modalOff, userInfo, setUserInfo }) => {
+  const user = userAuth.currentUser;
+  const [changeContent, setChangeContent] = useState(false);
+  const [isOn, setIsOn] = useState(userInfo.displayProfile);
+  const [mobileSize, setMobileSize] = useState(false);
+
+  const [originInfo, setOriginInfo] = useState({
+    name: userInfo.name,
+    userPhoto: userInfo.userPhoto,
+    bgImg: userInfo.bgImg,
+    userBio: userInfo.userBio,
+    gender: userInfo.gender,
+    birthday: userInfo.birthday,
+    displayProfile: userInfo.displayProfile,
+  });
+
+  const [profileState, setProfileState] = useState({
+    name: userInfo.name,
+    userPhoto: userInfo.userPhoto,
+    bgImg: userInfo.bgImg,
+    userBio: userInfo.userBio,
+    gender: userInfo.gender,
+    birthday: userInfo.birthday,
+    displayProfile: userInfo.displayProfile,
+  });
 
   const spring = {
     type: "spring",
@@ -193,11 +358,95 @@ const EditProfile = ({ modalOff }) => {
     damping: 30,
   };
 
-  const toggleSwitch = () => setIsOn(!isOn);
+  const toggleSwitch = () => {
+    setIsOn(!isOn);
+    setProfileState((prev) => ({
+      ...prev,
+      displayProfile: !prev.displayProfile,
+    }));
+  };
 
   const wrapperClick = () => {
     modalOff();
   };
+
+  const compareItem = async (newValue) => {
+    const hasChanged = Object.keys(profileState).some(
+      (key) => profileState[key] !== originInfo[key]
+    );
+    setChangeContent(hasChanged);
+  };
+
+  useEffect(() => {
+    compareItem();
+  }, [profileState]);
+
+  const updatePhoto = async (e) => {
+    const { files } = e.target;
+
+    if (!user) return;
+
+    if (files && files.length === 1) {
+      const file = files[0];
+      const locationRef = ref(storage, `userImg/profileImg/${user?.uid}`);
+      const result = await uploadBytes(locationRef, file);
+      const profileUrl = await getDownloadURL(result.ref);
+
+      setProfileState((or) => ({
+        ...or,
+        userPhoto: profileUrl,
+      }));
+    }
+  };
+
+  const updateBgPhoto = async (e) => {
+    const { files } = e.target;
+
+    if (!user) return;
+
+    if (files && files.length === 1) {
+      const file = files[0];
+      const locationRef = ref(storage, `userImg/bgImg/${user?.uid}`);
+      const result = await uploadBytes(locationRef, file);
+      const profileUrl = await getDownloadURL(result.ref);
+
+      setProfileState((or) => ({
+        ...or,
+        bgImg: profileUrl,
+      }));
+    }
+  };
+
+  const editProfile = () => {
+    if (!user) return;
+
+    setUserInfo((it) => ({
+      name: profileState.name,
+      userPhoto: profileState.userPhoto,
+      bgImg: profileState.bgImg,
+      userBio: profileState.userBio,
+      gender: profileState.gender,
+      birthday: profileState.birthday,
+      displayProfile: profileState.displayProfile,
+      createdAt: new Date(),
+      usesId: user.uid,
+    }));
+
+    modalOff();
+  };
+
+  const updateSize = (e) => {
+    if (e.target.innerWidth <= 768) setMobileSize(true);
+    else setMobileSize(false);
+  };
+
+  useEffect(() => {
+    window.innerWidth <= 768 ? setMobileSize(true) : setMobileSize(false);
+    window.addEventListener("resize", updateSize);
+    return () => {
+      window.removeEventListener("resize", updateSize);
+    };
+  }, []);
 
   return (
     <Wrapper onClick={wrapperClick}>
@@ -206,13 +455,35 @@ const EditProfile = ({ modalOff }) => {
           <h2>프로필 편집</h2>
           <div className="profileEdit">
             <div className="user">
-              <div className="profileCiecle"></div>
+              <div className="profileCiecle">
+                <img
+                  src={
+                    profileState.userPhoto ||
+                    "https://blog.kakaocdn.net/dn/Knpew/btrt3QWFcFi/AAHlfhBm8ZWxWTYeA2KAV0/%EC%B9%B4%ED%86%A1%20%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84%20%EC%82%AC%EC%A7%84.jpg?attach=1&knm=img.jpg"
+                  }
+                />
+              </div>
               <div className="userInfo">
-                <p>송채영</p>
-                <p>상태메세지 입니다.</p>
+                <p>{userInfo.name}</p>
+                <p>{userInfo.userBio}</p>
               </div>
             </div>
-            <button>사진변경</button>
+            <div className="inputGroup">
+              <input
+                type="file"
+                id="filetype"
+                accept="image/*"
+                onChange={updatePhoto}
+              />
+              <label htmlFor="filetype">사진변경</label>
+              <input
+                type="file"
+                id="filetype_bg"
+                accept="image/*"
+                onChange={updateBgPhoto}
+              />
+              <label htmlFor="filetype_bg">배경사진변경</label>
+            </div>
           </div>
           <div className="basicinfo">
             <h3>기본정보</h3>
@@ -220,13 +491,32 @@ const EditProfile = ({ modalOff }) => {
               <div className="icon">
                 <span class="material-symbols-outlined">person</span>
               </div>
-              <p>송채영</p>
+              <input
+                type="text"
+                value={profileState.name || ""}
+                onChange={(e) => {
+                  setProfileState((or) => ({
+                    ...or,
+                    name: e.target.value,
+                  }));
+                }}
+              />
             </div>
             <div className="infoitem">
               <div className="icon">
                 <span class="material-symbols-outlined">chat_bubble</span>
               </div>
-              <p>+ 한줄소개 추가</p>
+              <input
+                type="text"
+                value={profileState.userBio || ""}
+                placeholder="+ 한줄소개 추가"
+                onChange={(e) =>
+                  setProfileState((or) => ({
+                    ...or,
+                    userBio: e.target.value,
+                  }))
+                }
+              ></input>
             </div>
           </div>
           <div className="kakaoinfo">
@@ -239,13 +529,38 @@ const EditProfile = ({ modalOff }) => {
               <div className="icon">
                 <span class="material-symbols-outlined">redeem</span>
               </div>
-              <p>1998년 5월 12일(+)</p>
+              <input
+                type="date"
+                value={profileState.birthday || ""}
+                onChange={(e) =>
+                  setProfileState((or) => ({
+                    ...or,
+                    birthday: e.target.value,
+                  }))
+                }
+              />
             </div>
             <div className="infoitem">
               <div className="icon">
                 <i class="fa-solid fa-venus-mars"></i>
               </div>
-              <p>여성</p>
+              <select
+                defaultValue={profileState.gender}
+                // value={profileState.gender}
+                onChange={(e) =>
+                  setProfileState((or) => ({
+                    ...or,
+                    gender: e.target.value,
+                  }))
+                }
+              >
+                <option value="noSelect" disabled>
+                  성별을 선택해주세요
+                </option>
+                <option value={""}>선택안함</option>
+                <option value={"man"}>남성</option>
+                <option value={"woman"}>여성</option>
+              </select>
             </div>
           </div>
           <div className="profileThumbsup">
@@ -256,12 +571,26 @@ const EditProfile = ({ modalOff }) => {
                 회원님의 계정이 다른 프로필에서 추천될 수 있는지를 선택하세요.
               </p>
             </div>
-            <div className="switch" data-isOn={isOn} onClick={toggleSwitch}>
+            <div
+              // profileState={profileState.displayProfile}
+              className="switch"
+              data-ison={isOn}
+              onClick={toggleSwitch}
+            >
               <motion.div className="handle" layout transition={spring} />
             </div>
           </div>
         </div>
-        <SumbmitBtn changeContent={changeContent}>수정</SumbmitBtn>
+        <BtnGroup>
+          <button onClick={wrapperClick}>취소</button>
+          {changeContent ? (
+            <SumbmitBtn onClick={editProfile} className="okSumbit">
+              수정
+            </SumbmitBtn>
+          ) : (
+            <SumbmitBtn className="unSumbit">수정</SumbmitBtn>
+          )}
+        </BtnGroup>
       </Modal>
     </Wrapper>
   );

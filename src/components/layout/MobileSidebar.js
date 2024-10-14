@@ -4,6 +4,7 @@ import { mixins } from "../../styles/GlobalStyles.styles";
 import MoSidebarList from "./MoSidebarList";
 import { AnimatePresence, motion, transform } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import AddStoryHeader from "./AddStoryHeader";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -47,6 +48,7 @@ const Wrapper = styled.div`
 
 const MobileSidebar = () => {
   const [listShow, setListShow] = useState(false);
+  const [writeMode, setWriteMode] = useState(false);
   const nevigate = useNavigate();
 
   const goHome = () => {
@@ -109,16 +111,18 @@ const MobileSidebar = () => {
         </div>
       </Wrapper>
       <AnimatePresence>
-        {listShow ? (
+        {listShow && (
           <MoSidebarList
             variants={circleVarients}
             initial="initial"
             animate="visible"
             exit="leaving"
             openList={openList}
+            setWriteMode={setWriteMode}
           />
-        ) : null}
+        )}
       </AnimatePresence>
+      {writeMode && <AddStoryHeader setWriteMode={setWriteMode} />}
     </>
   );
 };

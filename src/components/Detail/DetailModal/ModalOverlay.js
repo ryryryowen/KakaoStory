@@ -8,10 +8,10 @@ const Overlay = styled.div`
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000; // 모달보다 아래에 위치 모달은 z-index : 1001 입니다
+  z-index: 1000; // 모달보다 아래에 위치 모달은 z-index : 1001
 `;  
 
-// 오버레이 컴포넌트
+
 const ModalOverlay = ({ onClick }) => {
   return <Overlay onClick={onClick} />;
 };
