@@ -21,6 +21,7 @@ import {
 import PostCard from "../components/Main/PostCard";
 import PostForm from "../components/Main/PostForm";
 import Post from "../components/Main/Post";
+import DetailModal from "../components/Detail/DetailModal/DetailModal";
 
 const Wrapper = styled.div`
   /* padding-left: 100px; */
@@ -93,6 +94,10 @@ export const UserInfo = React.createContext();
 const MyProfile = () => {
   const [mobileSize, setMobileSize] = useState(false);
   const user = userAuth.currentUser;
+  const initName = user.email.split("@")[0];
+  const [post, setPost] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
 
   const [userInfo, setUserInfo] = useState({
     name: user.displayName || initName,
@@ -106,9 +111,6 @@ const MyProfile = () => {
     createdAt: new Date(),
     userId: user?.uid,
   });
-
-  const initName = user.email.split("@")[0];
-  const [post, setPost] = useState([]);
 
   useEffect(() => {
     const saveUserInfo = async () => {
@@ -237,28 +239,55 @@ const MyProfile = () => {
     };
   }, []);
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedPost(null);
+  };
+
+  const openModal = (postId) => {
+    setSelectedPost(postId);
+    setIsModalOpen(true);
+  };
+
   return (
     <>
       {mobileSize ? (
         <MobileProfile userInfo={userInfo} setUserInfo={setUserInfo} />
       ) : (
-        <Wrapper>
-          <BgImgContainer>
-            <img src={userInfo?.bgImg} />
-          </BgImgContainer>
-          <ContentWrapper>
-            <ProfileFriend />
-            <PostcardWrapper>
-              {post.map((postData) => (
-                <Post key={postData.id} postData={postData} />
-              ))}
-              {/* <Post postData={post} /> */}
-            </PostcardWrapper>
-            <ProfileWrapper>
-              <MyProfileInfo userInfo={userInfo} setUserInfo={setUserInfo} />
-            </ProfileWrapper>
-          </ContentWrapper>
-        </Wrapper>
+        <>
+          {isModalOpen ? (
+            <DetailModal
+              isOpen={isModalOpen}
+              onClose={closeModal}
+              postId={selectedPost}
+            />
+          ) : (
+            ""
+          )}
+          <Wrapper>
+            <BgImgContainer>
+              <img src={userInfo?.bgImg} />
+            </BgImgContainer>
+            <ContentWrapper>
+              <ProfileFriend />
+              <PostcardWrapper>
+                {post.map((postData) => (
+                  <Post
+                    key={postData.id}
+                    postData={postData}
+                    openModal={openModal}
+                    isModalOpen={isModalOpen}
+                    selectedPost={selectedPost}
+                  />
+                ))}
+                {/* <Post postData={post} /> */}
+              </PostcardWrapper>
+              <ProfileWrapper>
+                <MyProfileInfo userInfo={userInfo} setUserInfo={setUserInfo} />
+              </ProfileWrapper>
+            </ContentWrapper>
+          </Wrapper>
+        </>
       )}
     </>
   );

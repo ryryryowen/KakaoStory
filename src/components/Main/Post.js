@@ -254,7 +254,7 @@ const Deletebutton = styled.button`
   }
 `;
 
-const Post = ({ postData, openModal }) => {
+const Post = ({ postData, openModal, isModalOpen, selectedPost }) => {
   const user = userAuth.currentUser;
   const [isSliderOpen, setSliderOpen] = useState(false);
   const [userImg, setUserImg] = useState(null);
@@ -295,7 +295,7 @@ const Post = ({ postData, openModal }) => {
 
     if (postDoc) {
       const data = postDoc.data();
-      console.log(data)
+      console.log(data);
       const currentLikes = data.likes || 0;
       await updateDoc(postDocRef, {
         ...data,
@@ -317,12 +317,17 @@ const Post = ({ postData, openModal }) => {
     }
   };
 
+  const openProfileModal = () => {
+    openModal(id);
+    console.log(isModalOpen, selectedPost);
+  };
+
+  useEffect(() => {
+    openProfileModal();
+  }, [id]);
+
   return (
-    <div
-      onClick={() => {
-        openModal(id);
-      }}
-    >
+    <div onClick={openProfileModal}>
       <Container>
         <ContainerBox>
           <Images>
@@ -343,7 +348,7 @@ const Post = ({ postData, openModal }) => {
                 </NameImage>
                 <NameText>{writeName || null}</NameText>
               </Names>
-              <Day>{new Date(createdAt).toLocaleString()}</Day>
+              <Day>{new Date(createdAt).toLocaleDateString()}</Day>
             </Name>
 
             <FormText>

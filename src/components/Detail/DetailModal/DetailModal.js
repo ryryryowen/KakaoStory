@@ -390,7 +390,7 @@ const DetailModal = ({ isOpen, onClose, postId }) => {
               <AuthorInfoText>
                 <AuthorName>{post.userName}</AuthorName>
                 <PostTime>
-                  {new Date(post.createdAt).toLocaleString("ko-KR")}
+                  {new Date(post.createdAt).toLocaleDateString("ko-KR")}
                 </PostTime>
               </AuthorInfoText>
             </div>
@@ -409,7 +409,7 @@ const DetailModal = ({ isOpen, onClose, postId }) => {
               </span>
             </EditDeleteIcons>
           </PostAuthorInfo>
-          {/* {post.post} */}
+          {post.post}
           <CommentList>
             {post.comments && post.comments.length > 0 ? (
               post.comments.map((comment, index) => (
@@ -423,7 +423,7 @@ const DetailModal = ({ isOpen, onClose, postId }) => {
                       <CommentHeader>
                         <CommentUserName>{comment.userId}</CommentUserName>
                         <CommentTime>
-                          {new Date(post.createdAt).toLocaleString("ko-KR")}
+                          {new Date(post.createdAt).toLocaleDateString("ko-KR")}
                         </CommentTime>
                       </CommentHeader>
                       <CommentText>{comment.content}</CommentText>

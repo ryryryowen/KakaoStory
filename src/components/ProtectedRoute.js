@@ -13,7 +13,6 @@ const ProtectedRoute = ({ children }) => {
     return (
       <>
         <Modal />
-        {children}
       </>
     );
 };
