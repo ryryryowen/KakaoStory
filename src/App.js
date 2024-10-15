@@ -2,17 +2,20 @@ import React, { useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { darkTheme, lightTheme } from "./styles/Theme";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { GlobalStyles, mixins } from "./styles/GlobalStyles.styles";
+import { GlobalStyles } from "./styles/GlobalStyles.styles";
 import Layout from "./components/layout/Layout";
 import MainPage from "./pages/MainPage";
 import LoginPage from "./pages/LoginPage";
 import DetailPage from "./pages/DetailPage";
 import MyProfile from "./pages/MyProfile";
-import Modal from "../src/components/Login/LoginModal/Modal";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { userKakaoCredentials } from "./routes/KakaoRedirect";
 import KakaoRedirect from "./routes/KakaoRedirect";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { userAuth } from "./configs/firebase";
+import LoadingScreen from "./common/LoadingScreen";
+// import getPopularPosts from "./utils/utill";
+// import data from "../src/kakao.json"
 
 // 라우터 설정
 const router = createBrowserRouter([
@@ -43,13 +46,15 @@ export const DarkModeStateContext = React.createContext();
 function App() {
   const [user, setUser] = useState({
     userName: "",
-    kakaoId: "",
-    kakaoProfilePic: "",
+    id: "",
+    profilePic: "",
     accessToken: "",
     isLoggedIn: false,
+    user: "",
   });
 
   const [darkmode, setDarkmode] = useState(false);
+  const [loading, setLoading] = useState(true); // 로딩 상태 추가
 
   const handleDarkmode = (e) => {
     setDarkmode((currrent) => !currrent);
@@ -57,11 +62,28 @@ function App() {
 
   const init = async () => {
     await userAuth.authStateReady();
+    // getPopularPosts(data);
   };
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser({ ...user, user, isLoggedIn: !user.isLoggedIn });
+      }
+      setLoading(false); // 인증 상태가 확인되면 로딩 종료
+    });
+    return () => unsubscribe(); // 컴포넌트가 언마운트될 때 리스너 해제
+  }, []);
 
   useEffect(() => {
     init();
   }, []);
+
+  // 로딩 중일 때는 로딩 화면을 표시
+  if (loading) {
+    return <LoadingScreen />; // 원하는 로딩 UI로 대체 가능
+  }
 
   return (
     <>

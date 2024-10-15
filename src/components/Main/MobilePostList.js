@@ -1,6 +1,7 @@
 import React from "react";
 import PostCardM from "./MobilePostCard";
 import styled from "styled-components";
+import User from "./User";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -10,6 +11,7 @@ const Wrapper = styled.div`
 const PostListM = () => {
   return (
     <Wrapper>
+      <User />
       <PostCardM />
     </Wrapper>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import { db } from "../../configs/firebase";
 import {
@@ -9,6 +9,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import Post from "./Post";
+import { userKakaoCredentials } from "../../routes/KakaoRedirect";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -16,25 +17,43 @@ const Wrapper = styled.div`
 
 const PostForm = ({ openModal }) => {
   const [posts, setPosts] = useState([]);
+  const { user } = useContext(userKakaoCredentials);
+  const userLogin = user.isLoggedIn;
 
   useEffect(() => {
-    const postsQuery = query(
-      collection(db, "contents"),
-      orderBy("createdAt", "desc"),
-      limit(25)
-    );
+    if (!userLogin) {
+      const popularQuery = query(
+        collection(db, "popularPosts"),
+        orderBy("createdAt", "desc")
+      );
 
-    const unsubscribe = onSnapshot(postsQuery, (snapshot) => {
-      const postsData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const unsubscribe = onSnapshot(popularQuery, (snapshot) => {
+        const postsData = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+        }));
 
-      setPosts(postsData);
-    });
+        setPosts(postsData);
+      });
 
-    return () => unsubscribe();
-  }, []);
+      return () => unsubscribe();
+    } else {
+      const postsQuery = query(
+        collection(db, "contents"),
+        orderBy("createdAt", "desc")
+      );
+
+      const unsubscribe = onSnapshot(postsQuery, (snapshot) => {
+        const postsData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setPosts(postsData);
+      });
+
+      return () => unsubscribe();
+    }
+  }, [userLogin]);
 
   return (
     <Wrapper>

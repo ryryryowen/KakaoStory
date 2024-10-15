@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
 import { userAuth } from "../../configs/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
+import { userKakaoCredentials } from "../../routes/KakaoRedirect";
+import Modal from "../Login/LoginModal/Modal";
 
 const Wrapper = styled(motion.div)`
   width: 100%;
@@ -87,9 +89,14 @@ const Heart = styled.div`
 
 const TextMain = styled.div`
   width: 100%;
-  height: 50px;
+  height: 48px;
   margin: 5px 0 10px 0;
   padding-top: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 `;
 const CommentArea = styled.div`
   display: flex;
@@ -164,13 +171,39 @@ const Grid = styled.div`
 `;
 
 const MobilePostForm = ({ postData }) => {
-  const user = userAuth.currentUser;
+  const nowUser = userAuth.currentUser;
   const [userImg, setUserImg] = useState(null);
   const [writeName, setWriteName] = useState(null);
   const [userData, setUserData] = useState({});
+  const [populerImg, setPopulerImg] = useState("");
+  const [loginUser, setLoginUser] = useState(false);
 
-  const { id, userName, post, photo, likes, postId, createdAt, comments } =
-    postData;
+  const { user } = useContext(userKakaoCredentials);
+  const userLogin = user.isLoggedIn;
+
+  const {
+    id,
+    userName,
+    post,
+    photo,
+    likes,
+    postId,
+    createdAt,
+    comments,
+    content,
+    userId,
+    userProfileImg,
+    postImg,
+  } = postData;
+
+  useEffect(() => {
+    if (!userLogin) {
+      if (postImg) {
+        setPopulerImg(postImg[0].url);
+        return;
+      }
+    }
+  }, []);
 
   const getUserInfo = async (uid) => {
     const userDocRef = doc(db, "users", uid);
@@ -192,6 +225,9 @@ const MobilePostForm = ({ postData }) => {
 
   const heartUp = async (e) => {
     e.stopPropagation();
+
+    if (!userLogin) return;
+
     const postDocRef = doc(db, "contents", id);
     const postDoc = await getDoc(postDocRef);
 
@@ -205,57 +241,75 @@ const MobilePostForm = ({ postData }) => {
     }
   };
 
+  const noLoginUser = (e) => {
+    if (!loginUser) {
+      e.stopPropagation();
+      setLoginUser(true);
+    }
+  };
+
+  useEffect(() => {
+    if (userLogin) setLoginUser(false);
+  }, [userLogin]);
+
   return (
-    <Wrapper>
-      <Container>
-        <ContentBox>
-          <Content>
-            <CotentImage>
-              <img src={photo} />
-            </CotentImage>
-            <DescMain>
-              <Icons>
-                <Icon>
-                  <Heart>
-                    <i
-                      onClick={(e) => heartUp(e)}
-                      className="fa-solid fa-heart"
-                    ></i>
-                    {likes}
-                  </Heart>
-                  <i className="fa-regular fa-comment"></i>
-                  <i className="fa-regular fa-paper-plane"></i>
-                </Icon>
-                {user?.uid === postId && (
-                  <div>
-                    <i className="fa-solid fa-ellipsis"></i>
-                  </div>
-                )}
-              </Icons>
-              <TextMain>
-                <p>{post}</p>
-              </TextMain>
-              <CommentArea>
-                <UserInfo>
-                  <User>
-                    <UserImg>
-                      <img src={userImg} />
-                    </UserImg>
-                    <UserName>{writeName}</UserName>
-                  </User>
-                  <Day>{new Date(createdAt).toLocaleDateString()}</Day>
-                </UserInfo>
-                <Comment />
-                <CommentIcon>
-                  <i className="fa-solid fa-link"></i>
-                  <i className="fa-regular fa-image"></i>
-                </CommentIcon>
-              </CommentArea>
-            </DescMain>
-          </Content>
-        </ContentBox>
-      </Container>
-    </Wrapper>
+    <>
+      <Wrapper>
+        <Container>
+          <ContentBox>
+            <Content>
+              <CotentImage>
+                <img src={userLogin ? photo : populerImg} />
+              </CotentImage>
+              <DescMain>
+                <Icons onClick={noLoginUser}>
+                  <Icon>
+                    <Heart>
+                      <i
+                        onClick={(e) => heartUp(e)}
+                        className="fa-solid fa-heart"
+                      ></i>
+                      {likes}
+                    </Heart>
+                    <i className="fa-regular fa-comment"></i>
+                    <i className="fa-regular fa-paper-plane"></i>
+                  </Icon>
+                  {nowUser?.uid === postId && (
+                    <div>
+                      <i className="fa-solid fa-ellipsis"></i>
+                    </div>
+                  )}
+                </Icons>
+                <TextMain>
+                  <p>{userLogin ? post : content}</p>
+                </TextMain>
+                <CommentArea onClick={noLoginUser}>
+                  <UserInfo>
+                    <User>
+                      <UserImg>
+                        <img
+                          src={
+                            userLogin ? userImg || null : userProfileImg || null
+                          }
+                        />
+                      </UserImg>
+                      <UserName>{userLogin ? writeName : userId}</UserName>
+                    </User>
+                    <Day>{new Date(createdAt).toLocaleDateString()}</Day>
+                  </UserInfo>
+                  <Comment />
+                  <CommentIcon>
+                    <i className="fa-solid fa-link"></i>
+                    <i className="fa-regular fa-image"></i>
+                  </CommentIcon>
+                </CommentArea>
+              </DescMain>
+            </Content>
+          </ContentBox>
+        </Container>
+      </Wrapper>
+      {loginUser && <Modal />}
+    </>
   );
 };
 

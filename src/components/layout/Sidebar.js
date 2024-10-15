@@ -188,8 +188,14 @@ const Sidebar = () => {
 
   const onHandleClick = (index, func) => {
     setActiveState(index);
-    func();
+    if (func) func();
   };
+
+  useEffect(() => {
+    if (!user.isLoggedIn) {
+      onHandleClick(0);
+    }
+  }, [user.isLoggedIn]);
 
   return (
     <Wrapper $showText={showText} $textOpacity={textOpacity} $flexProps>

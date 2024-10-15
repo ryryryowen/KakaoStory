@@ -9,7 +9,13 @@ const ProtectedRoute = ({ children }) => {
   const { user } = useContext(userKakaoCredentials);
 
   if (loggedUser) return children;
-  else return <Modal />;
+  
+  else
+    return (
+      <>
+        <Modal />
+      </>
+    );
 };
 
 export default ProtectedRoute;

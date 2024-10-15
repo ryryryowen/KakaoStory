@@ -21,11 +21,12 @@ import {
 import PostCard from "../components/Main/PostCard";
 import PostForm from "../components/Main/PostForm";
 import Post from "../components/Main/Post";
+import DetailModal from "../components/Detail/DetailModal/DetailModal";
 
 const Wrapper = styled.div`
-  /* padding-left: 100px; */
   padding-left: 50px;
   width: 100%;
+  min-height: 100vh;
   height: 100%;
   background: ${({ theme }) => theme.bgSubColor};
   position: relative;
@@ -39,7 +40,6 @@ const Wrapper = styled.div`
 const BgImgContainer = styled.div`
   background: #ddd;
   width: 100%;
-  /* width: calc(100vw - 100px); */
   height: 400px;
   overflow: hidden;
   img {
@@ -56,19 +56,14 @@ const ContentWrapper = styled.div`
   position: relative;
   margin: 0 auto;
   @media screen and (max-width: 1300px) {
-    /* width: 100%; */
     flex-direction: column-reverse;
-    /* justify-content: end; */
   }
 `;
 
 const PostcardWrapper = styled.div`
-  /* width: 1084px; */
   width: 950px;
   height: fit-content;
   margin: 0 auto;
-  /* padding: 50px 0; */
-  /* background: #fff; */
 `;
 
 const ProfileWrapper = styled.div`
@@ -83,8 +78,6 @@ const ProfileWrapper = styled.div`
     width: 100%;
     display: flex;
     justify-content: flex-end;
-    /* align-self: flex-end; */
-    /* margin-left: auto; */
   }
 `;
 
@@ -93,6 +86,10 @@ export const UserInfo = React.createContext();
 const MyProfile = () => {
   const [mobileSize, setMobileSize] = useState(false);
   const user = userAuth.currentUser;
+  const initName = user.email.split("@")[0];
+  const [post, setPost] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
 
   const [userInfo, setUserInfo] = useState({
     name: user.displayName || initName,
@@ -106,9 +103,6 @@ const MyProfile = () => {
     createdAt: new Date(),
     userId: user?.uid,
   });
-
-  const initName = user.email.split("@")[0];
-  const [post, setPost] = useState([]);
 
   useEffect(() => {
     const saveUserInfo = async () => {
@@ -146,18 +140,17 @@ const MyProfile = () => {
     if (user) saveUserInfo();
   }, [user]);
 
-  const updateUserInfo = async () => {
-    if (!user) return;
+  useEffect(() => {
+    const updateUserInfo = async () => {
+      if (!user) return;
 
-    try {
-      const userDocRef = doc(db, "users", user.uid);
-      const initInfo = await getDoc(userDocRef);
+      try {
+        const userDocRef = doc(db, "users", user.uid);
+        const initInfo = await getDoc(userDocRef);
+        let unsubscribe;
 
-      if (!initInfo.exists()) throw new Error("해당 유저 문서 없음");
-
-      const userData = initInfo.data();
-      // console.log("데이터 도착", userData);
-      if (userData) {
+        if (!initInfo.exists()) throw new Error("해당 유저 문서 없음");
+        const userData = initInfo.data();
         const updateData = {
           name: userInfo.name,
           userPhoto: userInfo.userPhoto,
@@ -171,19 +164,41 @@ const MyProfile = () => {
           userID: user.uid,
         };
 
+        // unsubscribe = onSnapshot(userDocRef, (doc) => {
+        //   if (!doc.exists()) {
+        //     return;
+        //   } else {
+        //     return updateData;
+        //   }
+        // });
+        // const userData = initInfo.data();
+        // console.log("데이터 도착", userData);
+        // if (userData) {
+        // const updateData = {
+        //   name: userInfo.name,
+        //   userPhoto: userInfo.userPhoto,
+        //   bgImg: userInfo.bgImg,
+        //   userBio: userInfo.userBio,
+        //   gender: userInfo.gender,
+        //   birthday: userInfo.birthday,
+        //   displayProfile: userInfo.displayProfile,
+        //   email: user.email,
+        //   createdAt: userInfo.createdAt,
+        //   userID: user.uid,
+        // };
+
         await updateDoc(userDocRef, updateData);
 
         await updateProfile(user, {
           displayName: userInfo.name,
           photoURL: userInfo.userPhoto,
         });
+        // }
+      } catch (err) {
+        console.error(err);
       }
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    };
 
-  useEffect(() => {
     updateUserInfo();
   }, [userInfo]);
 
@@ -192,20 +207,18 @@ const MyProfile = () => {
       if (!user) return;
 
       try {
+        let unsubscribe;
         const postQuery = query(
           collection(db, "contents"),
           where("postId", "==", user.uid),
           orderBy("createdAt", "desc")
         );
 
-        const snapshot = await getDocs(postQuery);
-
-        if (snapshot.empty) {
-          console.log("게시물이 없습니다.");
-          return;
-        }
-
-        const unsubscribe = onSnapshot(postQuery, (snapshot) => {
+        unsubscribe = onSnapshot(postQuery, (snapshot) => {
+          if (snapshot.empty) {
+            setPost([]);
+            return;
+          }
           const posts = snapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
@@ -213,9 +226,7 @@ const MyProfile = () => {
           setPost(posts);
         });
 
-        return () => {
-          unsubscribe && unsubscribe();
-        };
+        return () => unsubscribe && unsubscribe();
       } catch (err) {
         console.log(err);
       }
@@ -237,28 +248,55 @@ const MyProfile = () => {
     };
   }, []);
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedPost(null);
+  };
+
+  const openModal = (postId) => {
+    setSelectedPost(postId);
+    setIsModalOpen(true);
+  };
+
   return (
     <>
       {mobileSize ? (
         <MobileProfile userInfo={userInfo} setUserInfo={setUserInfo} />
       ) : (
-        <Wrapper>
-          <BgImgContainer>
-            <img src={userInfo?.bgImg} />
-          </BgImgContainer>
-          <ContentWrapper>
-            <ProfileFriend />
-            <PostcardWrapper>
-              {post.map((postData) => (
-                <Post key={postData.id} postData={postData} />
-              ))}
-              {/* <Post postData={post} /> */}
-            </PostcardWrapper>
-            <ProfileWrapper>
-              <MyProfileInfo userInfo={userInfo} setUserInfo={setUserInfo} />
-            </ProfileWrapper>
-          </ContentWrapper>
-        </Wrapper>
+        <>
+          {isModalOpen ? (
+            <DetailModal
+              isOpen={isModalOpen}
+              onClose={closeModal}
+              postId={selectedPost}
+            />
+          ) : (
+            ""
+          )}
+          <Wrapper>
+            <BgImgContainer>
+              <img src={userInfo?.bgImg} />
+            </BgImgContainer>
+            <ContentWrapper>
+              <ProfileFriend />
+              <PostcardWrapper>
+                {post.map((postData) => (
+                  <Post
+                    key={postData.id}
+                    postData={postData}
+                    openModal={openModal}
+                    isModalOpen={isModalOpen}
+                    selectedPost={selectedPost}
+                  />
+                ))}
+                {/* <Post postData={post} /> */}
+              </PostcardWrapper>
+              <ProfileWrapper>
+                <MyProfileInfo userInfo={userInfo} setUserInfo={setUserInfo} />
+              </ProfileWrapper>
+            </ContentWrapper>
+          </Wrapper>
+        </>
       )}
     </>
   );
