@@ -1,6 +1,9 @@
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import styled from "styled-components";
+import { useEffect } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 
 // 모달 스타일
 const Modal = styled.div`
@@ -122,6 +125,12 @@ const Story = styled(motion.div)`
   }
 `;
 
+const StoryVid = styled.video`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
 const StoryArray = [
   { id: 1, name: "Alice" },
   { id: 2, name: "Bob" },
@@ -154,7 +163,9 @@ function StoryMain() {
   const dragStartIndex = useRef(0);
 
   // 모달 상태
+  const [storyVid, setStoryVid] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [storyList, setStoryList] = useState([]);
   const [selectedStory, setSelectedStory] = useState(null);
 
   const handleMouseDown = (e) => {
@@ -196,6 +207,31 @@ function StoryMain() {
     setSelectedStory(null);
   };
 
+  const getStoryVidData = async () => {
+    try {
+      const storyVidRef = doc(db, `shotVideos/${selectedStory.videoRef}`);
+      const storyVids = await getDoc(storyVidRef);
+
+      if (storyVids) {
+        const data = storyVids.data();
+        console.log(data);
+        setStoryVid(data);
+        console.log(test);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    const pivotArr = StoryArray.map((story, index) => ({
+      ...story,
+      videoRef: `video${index + 1}`,
+    }));
+    setStoryList(pivotArr);
+    getStoryVidData();
+  }, [selectedStory]);
+
   return (
     <>
       <Wrapper
@@ -205,14 +241,13 @@ function StoryMain() {
         onMouseLeave={handleMouseLeave}
       >
         <StoryListMain drag="x" dragConstraints={{ left: -1750, right: 0 }}>
-          {StoryArray.map((item) => (
+          {storyList.map((item) => (
             <Story key={item.id} onClick={() => handleStoryClick(item)}>
               <span>{item.name}</span> {/* 이름 추가 */}
             </Story>
           ))}
         </StoryListMain>
       </Wrapper>
-
       {modalOpen && (
         <Modal onClick={closeModal}>
           <ModalContent onClick={(e) => e.stopPropagation()}>
@@ -226,7 +261,9 @@ function StoryMain() {
                 <i class="fa-solid fa-ellipsis"></i>
               </StoryTopRowItems>
             </StoryTopRow>
-            <StoryMiddleRow></StoryMiddleRow>
+            <StoryMiddleRow>
+              <StoryVid src={storyVid?.src} controls />
+            </StoryMiddleRow>
             <StoryBottomRow>
               <StoryTextarea
                 placeholder={`${selectedStory.name}님에게 답장하기`}
