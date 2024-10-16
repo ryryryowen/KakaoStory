@@ -6,8 +6,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { DarkModeStateContext } from "../../App";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase";
+import { userKakaoCredentials } from "../../routes/KakaoRedirect";
 
 const Wrapper = styled.div`
+  margin: 20px auto 120px;
   width: 100%;
   height: 100%;
   display: flex;
@@ -210,6 +212,8 @@ const MobilePostCard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [post, setPost] = useState([]);
+  const { user } = useContext(userKakaoCredentials);
+  const userLogin = user.isLoggedIn;
 
   const openModal = (post) => {
     setSelectedPost(post);
@@ -221,25 +225,39 @@ const MobilePostCard = () => {
   };
 
   useEffect(() => {
-    const postsQuery = query(
-      collection(db, "contents"),
-      orderBy("createdAt", "desc")
-    );
+    if (!userLogin) {
+      const popularQuery = query(
+        collection(db, "popularPosts"),
+        orderBy("createdAt", "desc")
+      );
 
-    const unsubscribe = onSnapshot(postsQuery, (snapshot) => {
-      const postsData = snapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-        };
+      const unsubscribe = onSnapshot(popularQuery, (snapshot) => {
+        const postsData = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+        }));
+
+        setPost(postsData);
       });
 
-      setPost(postsData);
-    });
+      return () => unsubscribe();
+    } else {
+      const postsQuery = query(
+        collection(db, "contents"),
+        orderBy("createdAt", "desc")
+      );
 
-    return () => unsubscribe();
-  }, []);
+      const unsubscribe = onSnapshot(postsQuery, (snapshot) => {
+        const postsData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setPost(postsData);
+      });
+
+      return () => unsubscribe();
+    }
+  }, [userLogin]);
 
   return (
     <Wrapper>
@@ -257,9 +275,9 @@ const MobilePostCard = () => {
       <AnimatePresence onExitComplete={() => setSelectedPost(null)}>
         {isModalOpen && (
           <MobileModal
-            $isOpen={isModalOpen}
+            isOpen={isModalOpen}
             onClose={closeModal}
-            post={selectedPost}
+            postId={selectedPost.id}
           />
         )}
       </AnimatePresence>

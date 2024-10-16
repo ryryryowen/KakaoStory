@@ -112,6 +112,8 @@ const MyProfile = () => {
     userId: user?.uid,
   });
 
+  console.log(userInfo)
+
   useEffect(() => {
     const saveUserInfo = async () => {
       if (!user) return;

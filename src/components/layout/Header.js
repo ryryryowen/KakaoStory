@@ -251,6 +251,11 @@ const Header = () => {
 
     if (isLoading || post === "" || post.length > 180) return;
 
+    if (!file) {
+      alert("이미지를 올려야 업로드 할 수 있어요!");
+      return;
+    }
+
     try {
       setIsLoading(true);
 

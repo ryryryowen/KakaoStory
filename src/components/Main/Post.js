@@ -323,7 +323,7 @@ const Post = ({ postData, openModal, isModalOpen, selectedPost }) => {
   };
 
   useEffect(() => {
-    openProfileModal();
+    // openProfileModal();
   }, [id]);
 
   return (
@@ -360,7 +360,7 @@ const Post = ({ postData, openModal, isModalOpen, selectedPost }) => {
                 <Heart onClick={heartUp} className="fa-solid fa-heart" />
                 <IconText>{likes}</IconText>
                 <Commentt className="fa-regular fa-comment" />
-                <IconText>{0}</IconText>
+                <IconText>{comments.length}</IconText>
                 <Plane className="fa-regular fa-paper-plane" />
               </Icon>
 
@@ -374,7 +374,6 @@ const Post = ({ postData, openModal, isModalOpen, selectedPost }) => {
             <Comments>
               <Comment>
                 <CommentImage />
-
                 <Commentinput type="text" placeholder="댓글 입력..." />
               </Comment>
 
