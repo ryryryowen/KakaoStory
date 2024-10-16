@@ -10,7 +10,7 @@ import { auth, db, storage } from "../../firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import styled from "styled-components";
 import { AnimatePresence, motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { DocIdContext } from "../../App";
 const Wrapper = styled.main`
   width: 100%;
@@ -223,6 +223,7 @@ const FileInput = styled.input`
   display: none; // 숨기기
 `;
 const Header = () => {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [post, setPost] = useState("");
   const [file, setFile] = useState(null);
@@ -302,7 +303,7 @@ const Header = () => {
   return (
     <Wrapper>
       <HeaderMain>
-        <KakaoLogo />
+        <KakaoLogo onClick={() => navigate("/")} />
         <SearchBarHeader type="text" id="searchBarHeader" />
         <SearchBarHeaderValue>
           <i className="fa-solid fa-magnifying-glass"></i>검색

@@ -59,13 +59,13 @@ function Header() {
     <AddStoryHeader>오늘의 스토리를 들려주세요.</AddStoryHeader>
     <LeftIconHeader>
       <button>
-        <i class="fa-solid fa-user-group"></i>
+        <i className="fa-solid fa-user-group"></i>
       </button>
       <button>
-        <i class="fa-regular fa-bell"></i>
+        <i className="fa-regular fa-bell"></i>
       </button>
       <button>
-        <i class="fa-regular fa-circle-user"></i>
+        <i className="fa-regular fa-circle-user"></i>
       </button>
     </LeftIconHeader>
   </HeaderHeader>;

@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import styled from "styled-components";
 import { useEffect } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
 import { db } from "../../firebase";
 
 // 모달 스타일
@@ -66,7 +66,7 @@ const StoryUserNames = styled.div`
   z-index: 100;
 `;
 
-const StoryImg = styled.div`
+const StoryImg = styled.video`
   width: 35px;
   height: 35px;
   border-radius: 50%;
@@ -112,6 +112,7 @@ const StoryListMain = styled(motion.div)`
 `;
 
 const Story = styled(motion.div)`
+  position: relative;
   display: flex;
   flex-direction: column; /* 수직 방향으로 배치 */
   align-items: center; /* 가운데 정렬 */
@@ -129,6 +130,16 @@ const Story = styled(motion.div)`
     text-align: center; /* 가운데 정렬 */
     color: ${({ theme }) => theme.fontColor};
   }
+`;
+
+const StoryThumbnail = styled.video`
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  object-fit: cover;
 `;
 
 const StoryVid = styled.video`
@@ -173,6 +184,7 @@ function StoryMain() {
   const [modalOpen, setModalOpen] = useState(false);
   const [storyList, setStoryList] = useState([]);
   const [selectedStory, setSelectedStory] = useState(null);
+  const [allStoryVideos, setAllStoryVideos] = useState([]);
 
   const handleMouseDown = (e) => {
     isDragging.current = true;
@@ -215,17 +227,33 @@ function StoryMain() {
 
   const getStoryVidData = async () => {
     try {
-      const storyVidRef = doc(db, `shotVideos/${selectedStory.videoRef}`);
+      const storyVidRef = doc(db, `shotVideos/${selectedStory?.videoRef}`);
       const storyVids = await getDoc(storyVidRef);
 
       if (storyVids) {
         const data = storyVids.data();
-        console.log(data);
+        // console.log(data);
         setStoryVid(data);
-        console.log(test);
+        // console.log(test);
       }
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const getAllStoryDatas = async () => {
+    try {
+      const storyAllVidsRef = query(collection(db, "shotVideos"));
+      const storyAllVids = await getDocs(storyAllVidsRef);
+      let datas = [];
+      const data = storyAllVids.docs.map((video) => {
+        const src = video.data();
+        datas.push(src);
+      });
+      // console.log(datas);
+      setAllStoryVideos(datas);
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -238,6 +266,8 @@ function StoryMain() {
     getStoryVidData();
   }, [selectedStory]);
 
+  // console.log(selectedStory);
+
   return (
     <>
       <Wrapper
@@ -247,9 +277,10 @@ function StoryMain() {
         onMouseLeave={handleMouseLeave}
       >
         <StoryListMain drag="x" dragConstraints={{ left: -1750, right: 0 }}>
-          {storyList.map((item) => (
+          {allStoryVideos?.map((item) => (
             <Story key={item.id} onClick={() => handleStoryClick(item)}>
-              <span>{item.name}</span> {/* 이름 추가 */}
+              <StoryThumbnail src={item.src} muted />
+              <span>{item?.name}</span> {/* 이름 추가 */}
             </Story>
           ))}
         </StoryListMain>
@@ -259,12 +290,12 @@ function StoryMain() {
           <ModalContent onClick={(e) => e.stopPropagation()}>
             <StoryTopRow>
               <StoryUserNames>
-                <StoryImg>{selectedStory.Img}</StoryImg>
+                <StoryImg src={storyVid?.src} muted></StoryImg>
                 <StoryUserName>{selectedStory.name}</StoryUserName>
               </StoryUserNames>
               <StoryTopRowItems>
-                <i class="fa-solid fa-volume-xmark"></i>
-                <i class="fa-solid fa-ellipsis"></i>
+                <i className="fa-solid fa-volume-xmark"></i>
+                <i className="fa-solid fa-ellipsis"></i>
               </StoryTopRowItems>
             </StoryTopRow>
             <StoryMiddleRow>
@@ -274,12 +305,12 @@ function StoryMain() {
               <StoryTextarea
                 placeholder={`${selectedStory.name}님에게 답장하기`}
               />
-              <i class="fa-regular fa-heart"></i>
-              <i class="fa-regular fa-paper-plane"></i>
+              <i className="fa-regular fa-heart"></i>
+              <i className="fa-regular fa-paper-plane"></i>
             </StoryBottomRow>
           </ModalContent>
           <StoryXMark onClick={closeModal}>
-            <i class="fa-solid fa-xmark"></i>
+            <i className="fa-solid fa-xmark"></i>
           </StoryXMark>
         </Modal>
       )}

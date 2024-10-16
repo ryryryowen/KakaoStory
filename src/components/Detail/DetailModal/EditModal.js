@@ -147,7 +147,7 @@ const EditModalPostform = ({ onClose, postId }) => {
         setUserImage(postData.userProfileImg || "");
         setPhoto(postData.photo || "");
       } else {
-        console.log("해당 문서가 존재하지 않습니다.");
+        // console.log("해당 문서가 존재하지 않습니다.");
       }
     } catch (error) {
       console.error("데이터 가져오기 오류:", error);

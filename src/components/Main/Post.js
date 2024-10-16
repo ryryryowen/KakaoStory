@@ -358,8 +358,10 @@ const Post = ({ postData, openModal, isModalOpen, selectedPost }) => {
   };
 
   const noLoginUser = (e) => {
-    e.stopPropagation();
-    setLoginUser(true);
+    if (!userLogin) {
+      e.stopPropagation();
+      setLoginUser(true);
+    }
   };
 
   useEffect(() => {

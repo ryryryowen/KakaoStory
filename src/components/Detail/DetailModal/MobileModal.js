@@ -150,16 +150,16 @@ const MobileModal = ({ isOpen, onClose, postId }) => {
 
   useEffect(() => {
     if (postId) {
-      console.log("Post ID:", postId);
+      // console.log("Post ID:", postId);
       const postRef = doc(db, "contents", postId);
       const unsubscribe = onSnapshot(postRef, (doc) => {
         if (doc.exists()) {
           const postData = doc.data();
-          console.log("Post Data:", postData);
+          // console.log("Post Data:", postData);
           setPost(postData); // post 데이터를 설정
           setComments(postData.comments || []);
         } else {
-          console.log("문서가 없습니다!");
+          // console.log("문서가 없습니다!");
         }
       });
 
@@ -194,7 +194,7 @@ const MobileModal = ({ isOpen, onClose, postId }) => {
 
         setNewComment("");
       } else {
-        console.log("게시글을 찾을 수 없습니다!");
+        // console.log("게시글을 찾을 수 없습니다!");
       }
     } catch (error) {
       console.error("댓글 추가 중 오류 발생:", error);

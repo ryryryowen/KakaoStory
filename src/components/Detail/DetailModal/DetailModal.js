@@ -275,7 +275,7 @@ const DetailModal = ({ isOpen, onClose, postId }) => {
     if (postDoc.exists()) {
       setPost(postDoc.data());
     } else {
-      console.log("문서가 없습니다!");
+      // console.log("문서가 없습니다!");
     }
   };
 
@@ -327,7 +327,7 @@ const DetailModal = ({ isOpen, onClose, postId }) => {
           comments: updatedComments,
         }));
       } else {
-        console.log("게시글을 찾을 수 없습니다!");
+        // console.log("게시글을 찾을 수 없습니다!");
       }
     } catch (error) {
       console.error("댓글을 추가하는 중 오류 발생:", error);

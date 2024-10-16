@@ -27,19 +27,29 @@ const Gototop = styled.a`
   opacity: 0;
   transition: all 0.3s;
   z-index: 100;
+  cursor: pointer;
   &.active {
     opacity: 1;
     bottom: 20px;
   }
 `;
+
+const Container = styled.div`
+  display: flex;
+`;
 const PostList = () => {
   return (
     <Wrapper>
-      <PostCard />
-      <Video />
-      <Gototop className="active" href="#">
-        <i class="fa-solid fa-chevron-up"></i>
-      </Gototop>
+      <Container>
+        <PostCard />
+        <Video />
+        <Gototop
+          className="active"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        >
+          <i className="fa-solid fa-chevron-up"></i>
+        </Gototop>
+      </Container>
     </Wrapper>
   );
 };

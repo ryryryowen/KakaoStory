@@ -31,7 +31,7 @@ const KakaoRedirect = () => {
           },
         }
       );
-      console.log(userInfoResponse.data);
+      // console.log(userInfoResponse.data);
 
       const userName = userInfoResponse.data.kakao_account.profile.nickname;
       const kakaoProfilePic =

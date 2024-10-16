@@ -197,15 +197,15 @@ function AddStoryHeader({ setWriteMode }) {
               onChange={onFileChange}
             />
             <label htmlFor="photo">
-              <i class="fa-solid fa-camera"></i>
+              <i className="fa-solid fa-camera"></i>
             </label>
             <input type="file" id="music" accept="audio/*" />
             <label htmlFor="music">
-              <i class="fa-solid fa-music"></i>
+              <i className="fa-solid fa-music"></i>
             </label>
             <input type="file" id="link" />
             <label htmlFor="link">
-              <i class="fa-solid fa-link"></i>
+              <i className="fa-solid fa-link"></i>
             </label>
           </AddStoryIcons>
           <AddStoryButtons>

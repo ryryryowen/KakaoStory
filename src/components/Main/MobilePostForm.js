@@ -176,7 +176,7 @@ const MobilePostForm = ({ postData }) => {
   const [writeName, setWriteName] = useState(null);
   const [userData, setUserData] = useState({});
   const [populerImg, setPopulerImg] = useState("");
-  const [loginUser, setLoginUser] = useState(false);
+  const [loginModal, setLoginModal] = useState(false);
 
   const { user } = useContext(userKakaoCredentials);
   const userLogin = user.isLoggedIn;
@@ -241,15 +241,16 @@ const MobilePostForm = ({ postData }) => {
   };
 
   const noLoginUser = (e) => {
-    if (!loginUser) {
+    if (!userLogin) {
       e.stopPropagation();
-
-      setLoginUser(true);
+      setLoginModal(true);
     }
   };
 
   useEffect(() => {
-    if (userLogin) setLoginUser(false);
+    if (userLogin) {
+      setLoginModal(false);
+    }
   }, [userLogin]);
 
   return (
@@ -306,7 +307,7 @@ const MobilePostForm = ({ postData }) => {
           </Content>
         </ContentBox>
       </Container>
-      {loginUser && <Modal />}
+      {loginModal && <Modal />}
     </Wrapper>
   );
 };

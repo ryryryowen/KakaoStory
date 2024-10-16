@@ -55,13 +55,13 @@ function MobileHeader() {
       <KakaoLogo />
       <HeaderIcons>
         <BellIconHeader>
-          <i class="fa-regular fa-bell"></i>
+          <i className="fa-regular fa-bell"></i>
           <div>
-            <i class="fa-solid fa-circle"></i>
+            <i className="fa-solid fa-circle"></i>
           </div>
         </BellIconHeader>
         <PersonIconHeader>
-          <i class="fa-regular fa-circle-user"></i>
+          <i className="fa-regular fa-circle-user"></i>
         </PersonIconHeader>
       </HeaderIcons>
     </Wrapper>

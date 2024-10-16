@@ -489,7 +489,7 @@ const EditProfile = ({ modalOff, userInfo, setUserInfo }) => {
             <h3>기본정보</h3>
             <div className="infoitem">
               <div className="icon">
-                <span class="material-symbols-outlined">person</span>
+                <span className="material-symbols-outlined">person</span>
               </div>
               <input
                 type="text"
@@ -504,7 +504,7 @@ const EditProfile = ({ modalOff, userInfo, setUserInfo }) => {
             </div>
             <div className="infoitem">
               <div className="icon">
-                <span class="material-symbols-outlined">chat_bubble</span>
+                <span className="material-symbols-outlined">chat_bubble</span>
               </div>
               <input
                 type="text"
@@ -527,7 +527,7 @@ const EditProfile = ({ modalOff, userInfo, setUserInfo }) => {
             </p>
             <div className="infoitem">
               <div className="icon">
-                <span class="material-symbols-outlined">redeem</span>
+                <span className="material-symbols-outlined">redeem</span>
               </div>
               <input
                 type="date"
@@ -542,7 +542,7 @@ const EditProfile = ({ modalOff, userInfo, setUserInfo }) => {
             </div>
             <div className="infoitem">
               <div className="icon">
-                <i class="fa-solid fa-venus-mars"></i>
+                <i className="fa-solid fa-venus-mars"></i>
               </div>
               <select
                 defaultValue={profileState.gender}

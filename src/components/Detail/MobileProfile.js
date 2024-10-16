@@ -159,7 +159,7 @@ const MobileProfile = ({ userInfo, setUserInfo }) => {
         const snapshot = await getDocs(postQuery);
 
         if (snapshot.empty) {
-          console.log("게시물이 없습니다.");
+          // console.log("게시물이 없습니다.");
           return;
         }
 

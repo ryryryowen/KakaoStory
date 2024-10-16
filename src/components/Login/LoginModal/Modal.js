@@ -329,13 +329,13 @@ const Modal = () => {
             },
           }
         );
-        console.log("Kakao 로그아웃 완료");
+        // console.log("Kakao 로그아웃 완료");
         setUser({
           ...user,
           isLoggedIn: false,
         });
       } else {
-        console.log("Access Token이 없습니다.");
+        // console.log("Access Token이 없습니다.");
       }
     } catch (error) {
       console.log("로그아웃 중 오류 발생:", error);
@@ -360,12 +360,12 @@ const Modal = () => {
         signOut(userAuth);
       } else {
         alert(`${firebaseUser.email.split("@")[0]}님, 환영합니다!`);
-        console.log(userAuth.currentUser);
+        // console.log(userAuth.currentUser);
         setUser({ ...user, isLoggedIn: true });
       }
     } catch (e) {
       if (e instanceof FirebaseError) {
-        console.log(e.code);
+        // console.log(e.code);
         if (e.code === "auth/user-not-found")
           window.alert("존재하지 않는 계정입니다. 다시 시도해주세요.");
         else if (e.code === "auth/wrong-password") {

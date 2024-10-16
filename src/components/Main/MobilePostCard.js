@@ -15,7 +15,6 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 60px;
   background: ${({ theme }) => theme.bgColor};
   position: relative;
 `;
