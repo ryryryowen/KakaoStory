@@ -97,12 +97,18 @@ const Wrapper = styled.div`
   overflow: hidden; /* 콘텐츠가 영역을 넘어가면 숨김 */
   display: flex;
   align-items: center;
+  @media screen and (max-width: 768px) {
+    margin-top: 60px;
+  }
 `;
 
 const StoryListMain = styled(motion.div)`
   display: flex;
   align-items: center;
-  gap: 44px;
+  gap: 20px;
+  @media screen and (max-width: 768px) {
+    gap: 6px;
+  }
 `;
 
 const Story = styled(motion.div)`

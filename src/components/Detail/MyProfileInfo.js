@@ -79,6 +79,7 @@ const MyProfile = styled.div`
     .profileImg {
       min-width: 180px;
       height: 180px;
+      width: 180px;
     }
   }
 `;

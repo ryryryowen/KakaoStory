@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { userAuth } from "../../configs/firebase";
 import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../../firebase";
 import EditModal from "../Detail/DetailModal/EditModal";
+import { userKakaoCredentials } from "../../routes/KakaoRedirect";
+import Modal from "../Login/LoginModal/Modal";
 
 const Container = styled.div`
   width: 950px;
@@ -177,6 +179,12 @@ const CommentImage = styled.div`
   height: 40px;
   border-radius: 50%;
   background: #efefef;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
 const Commentinput = styled.input`
@@ -255,15 +263,41 @@ const Deletebutton = styled.button`
 `;
 
 const Post = ({ postData, openModal, isModalOpen, selectedPost }) => {
-  const user = userAuth.currentUser;
+  const { user } = useContext(userKakaoCredentials);
+  const userLogin = user.isLoggedIn;
+
+  const nowUser = userAuth.currentUser;
   const [isSliderOpen, setSliderOpen] = useState(false);
   const [userImg, setUserImg] = useState(null);
   const [writeName, setWriteName] = useState(null);
   const [userData, setUserData] = useState({});
   const [editMode, setEditMode] = useState(false);
+  const [populerImg, setPopulerImg] = useState("");
+  const [loginUser, setLoginUser] = useState(false);
 
-  const { id, userName, post, photo, likes, postId, createdAt, comments } =
-    postData;
+  const {
+    id,
+    userName,
+    post,
+    photo,
+    likes,
+    postId,
+    createdAt,
+    comments,
+    content,
+    userId,
+    userProfileImg,
+    postImg,
+  } = postData;
+
+  useEffect(() => {
+    if (!userLogin) {
+      if (postImg) {
+        setPopulerImg(postImg[0].url);
+        return;
+      }
+    }
+  }, []);
 
   const getUserInfo = async (uid) => {
     const userDocRef = doc(db, "users", uid);
@@ -290,12 +324,14 @@ const Post = ({ postData, openModal, isModalOpen, selectedPost }) => {
 
   const heartUp = async (e) => {
     e.stopPropagation();
+
+    if (!userLogin) return;
+
     const postDocRef = doc(db, "contents", id);
     const postDoc = await getDoc(postDocRef);
 
     if (postDoc) {
       const data = postDoc.data();
-      console.log(data);
       const currentLikes = data.likes || 0;
       await updateDoc(postDocRef, {
         ...data,
@@ -319,43 +355,53 @@ const Post = ({ postData, openModal, isModalOpen, selectedPost }) => {
 
   const openProfileModal = () => {
     openModal(id);
-    console.log(isModalOpen, selectedPost);
+  };
+
+  const noLoginUser = (e) => {
+    e.stopPropagation();
+    setLoginUser(true);
   };
 
   useEffect(() => {
-    // openProfileModal();
-  }, [id]);
+    if (userLogin) setLoginUser(false);
+  }, [userLogin]);
 
   return (
     <div onClick={openProfileModal}>
       <Container>
         <ContainerBox>
           <Images>
-            {photo && (
+            {
               <img
-                src={photo}
+                src={userLogin ? photo : populerImg}
                 alt="Post"
-                style={{ width: "100%", height: "100%", borderRadius: "20px" }}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: "20px",
+                }}
               />
-            )}
+            }
           </Images>
 
           <Text>
             <Name>
               <Names>
                 <NameImage>
-                  <img src={userImg || null} />
+                  <img
+                    src={userLogin ? userImg || null : userProfileImg || null}
+                  />
                 </NameImage>
-                <NameText>{writeName || null}</NameText>
+                <NameText>{userLogin ? writeName : userId}</NameText>
               </Names>
               <Day>{new Date(createdAt).toLocaleDateString()}</Day>
             </Name>
 
             <FormText>
-              <p>{post}</p>
+              <p>{userLogin ? post : content}</p>
             </FormText>
 
-            <Icons>
+            <Icons onClick={noLoginUser}>
               <Icon>
                 <Heart onClick={heartUp} className="fa-solid fa-heart" />
                 <IconText>{likes}</IconText>
@@ -364,16 +410,19 @@ const Post = ({ postData, openModal, isModalOpen, selectedPost }) => {
                 <Plane className="fa-regular fa-paper-plane" />
               </Icon>
 
-              {user?.uid === postId && (
+              {nowUser?.uid === postId && (
                 <Ellipsis
                   className="fa-solid fa-ellipsis"
                   onClick={toggleSlider}
                 />
               )}
             </Icons>
-            <Comments>
+            <Comments onClick={noLoginUser}>
               <Comment>
-                <CommentImage />
+                <CommentImage>
+                  <img src={nowUser?.photoURL} />
+                </CommentImage>
+
                 <Commentinput type="text" placeholder="댓글 입력..." />
               </Comment>
 
@@ -395,6 +444,7 @@ const Post = ({ postData, openModal, isModalOpen, selectedPost }) => {
         </ContainerBox>
       </Container>
       {editMode && <EditModal setEditMode={setEditMode} />}
+      {loginUser && <Modal />}
     </div>
   );
 };

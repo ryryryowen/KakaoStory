@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { darkTheme, lightTheme } from "./styles/Theme";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { GlobalStyles } from "./styles/GlobalStyles.styles";
 import { GlobalStyles } from "./styles/GlobalStyles.styles";
 import Layout from "./components/layout/Layout";
 import MainPage from "./pages/MainPage";
 import LoginPage from "./pages/LoginPage";
 import DetailPage from "./pages/DetailPage";
 import MyProfile from "./pages/MyProfile";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { userKakaoCredentials } from "./routes/KakaoRedirect";
+import KakaoRedirect from "./routes/KakaoRedirect";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { userAuth } from "./configs/firebase";
+import LoadingScreen from "./common/LoadingScreen";
+// import getPopularPosts from "./utils/utill";
+// import data from "../src/kakao.json"
 import ProtectedRoute from "./components/ProtectedRoute";
 import { userKakaoCredentials } from "./routes/KakaoRedirect";
 import KakaoRedirect from "./routes/KakaoRedirect";
@@ -69,7 +79,7 @@ function App() {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUser({ ...user, user });
+        setUser({ ...user, user, isLoggedIn: !user.isLoggedIn });
       }
       setLoading(false); // 인증 상태가 확인되면 로딩 종료
     });

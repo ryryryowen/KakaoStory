@@ -33,10 +33,7 @@ const ModalContent = styled.div`
 const PostDetailImage = styled.div`
   width: 620px;
   height: 100%;
-  /* background-color: ${({ theme }) => theme.bgSubColor};
-  background-image: url(${(props) => props.image});
-  background-size: cover;
-  background-position: center; */
+  background-position: center;
 `;
 
 const CommentsSection = styled.div`
