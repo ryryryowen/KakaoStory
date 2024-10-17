@@ -5,7 +5,6 @@ import Sidebar from "./Sidebar";
 import styled from "styled-components";
 import MobileSidebar from "./MobileSidebar";
 
-// 밑에 스타일들은 전부 목업 예시입니다 전부 바꾸면됩니다~
 
 // 레이아웃 컨테이너 스타일
 const LayoutContainer = styled.div`

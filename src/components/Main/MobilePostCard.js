@@ -15,7 +15,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: ${({ theme }) => theme.bgColor};
+  background: ${({ theme }) => theme.bgSubColor};
   position: relative;
 `;
 

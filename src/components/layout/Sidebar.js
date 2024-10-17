@@ -6,7 +6,7 @@ import { DarkModeStateContext } from "../../App";
 import { userKakaoCredentials } from "../../routes/KakaoRedirect";
 
 const Wrapper = styled.div`
-  width: ${({ $showText }) => ($showText ? "360px" : "100px")};
+  width: ${({ $showText }) => ($showText ? "360px" : "80px")};
   height: calc(100vh - 60px);
   position: fixed;
   bottom: 0;
@@ -76,6 +76,7 @@ const Wrapper = styled.div`
           padding: 6px 16px;
           opacity: 0;
           transition: all 0.3s;
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
           p {
             font-size: 12px;
             white-space: nowrap;

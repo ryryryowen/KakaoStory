@@ -38,6 +38,7 @@ const Modal = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    color: ${({ theme }) => theme.fontColor};
     h2 {
       font-size: 20px;
       letter-spacing: -1px;
@@ -46,7 +47,9 @@ const Modal = styled.div`
     .profileEdit {
       width: 100%;
       height: 100px;
-      background: #eee;
+      /* background: #eee; */
+      background: ${({ theme }) => theme.bgSubColor};
+
       margin: 0 auto;
       border-radius: 30px;
       display: flex;
@@ -74,7 +77,8 @@ const Modal = styled.div`
         .userInfo {
           p:nth-child(1) {
             font-size: 18px;
-            color: #333;
+            /* color: #333; */
+            color: ${({ theme }) => theme.fontColor};
             margin-bottom: 6px;
             height: 22px;
           }
@@ -89,6 +93,7 @@ const Modal = styled.div`
             line-height: 120%;
             overflow: hidden;
             text-overflow: ellipsis;
+            color: ${({ theme }) => theme.fontColor};
           }
         }
       }
@@ -137,6 +142,8 @@ const Modal = styled.div`
       input[type="text"],
       input[type="date"],
       select {
+        color: ${({ theme }) => theme.fontColor};
+        background: transparent;
         width: 100%;
         border: none;
         padding: 6px;
@@ -164,6 +171,7 @@ const Modal = styled.div`
       h3 {
         font-size: 18px;
         letter-spacing: -0.32px;
+        color: ${({ theme }) => theme.fontColor};
       }
       > p {
         font-size: 12px;
@@ -268,6 +276,7 @@ const Modal = styled.div`
       .basicinfo,
       .kakaoinfo {
         h3 {
+          color: ${({ theme }) => theme.fontColor};
           font-size: 16px;
         }
         > p {
@@ -278,6 +287,7 @@ const Modal = styled.div`
         .profileThumbsup_text {
           width: 80%;
           h3 {
+            color: ${({ theme }) => theme.fontColor};
             font-size: 16px;
           }
           p {
@@ -310,6 +320,7 @@ const SumbmitBtn = styled.button`
 const BtnGroup = styled.div`
   display: flex;
   gap: 10px;
+  opacity: ${({ theme }) => theme.modeOpacity};
   > button:nth-child(1) {
     font-size: 20px;
     color: #fff;
@@ -326,7 +337,13 @@ const BtnGroup = styled.div`
   }
 `;
 
-const EditProfile = ({ modalOff, userInfo, setUserInfo }) => {
+const EditProfile = ({
+  modalOff,
+  userInfo,
+  setUserInfo,
+  isLoading,
+  setIsLoading,
+}) => {
   const user = userAuth.currentUser;
   const [changeContent, setChangeContent] = useState(false);
   const [isOn, setIsOn] = useState(userInfo.displayProfile);
@@ -420,6 +437,8 @@ const EditProfile = ({ modalOff, userInfo, setUserInfo }) => {
   const editProfile = () => {
     if (!user) return;
 
+    setIsLoading(true);
+
     setUserInfo((it) => ({
       name: profileState.name,
       userPhoto: profileState.userPhoto,
@@ -449,150 +468,152 @@ const EditProfile = ({ modalOff, userInfo, setUserInfo }) => {
   }, []);
 
   return (
-    <Wrapper onClick={wrapperClick}>
-      <Modal onClick={(e) => e.stopPropagation()}>
-        <div className="profile">
-          <h2>프로필 편집</h2>
-          <div className="profileEdit">
-            <div className="user">
-              <div className="profileCiecle">
-                <img
-                  src={
-                    profileState.userPhoto ||
-                    "https://blog.kakaocdn.net/dn/Knpew/btrt3QWFcFi/AAHlfhBm8ZWxWTYeA2KAV0/%EC%B9%B4%ED%86%A1%20%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84%20%EC%82%AC%EC%A7%84.jpg?attach=1&knm=img.jpg"
+    <>
+      <Wrapper onClick={wrapperClick}>
+        <Modal onClick={(e) => e.stopPropagation()}>
+          <div className="profile">
+            <h2>프로필 편집</h2>
+            <div className="profileEdit">
+              <div className="user">
+                <div className="profileCiecle">
+                  <img
+                    src={
+                      profileState.userPhoto ||
+                      "https://blog.kakaocdn.net/dn/Knpew/btrt3QWFcFi/AAHlfhBm8ZWxWTYeA2KAV0/%EC%B9%B4%ED%86%A1%20%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84%20%EC%82%AC%EC%A7%84.jpg?attach=1&knm=img.jpg"
+                    }
+                  />
+                </div>
+                <div className="userInfo">
+                  <p>{userInfo.name}</p>
+                  <p>{userInfo.userBio}</p>
+                </div>
+              </div>
+              <div className="inputGroup">
+                <input
+                  type="file"
+                  id="filetype"
+                  accept="image/*"
+                  onChange={updatePhoto}
+                />
+                <label htmlFor="filetype">사진변경</label>
+                <input
+                  type="file"
+                  id="filetype_bg"
+                  accept="image/*"
+                  onChange={updateBgPhoto}
+                />
+                <label htmlFor="filetype_bg">배경사진변경</label>
+              </div>
+            </div>
+            <div className="basicinfo">
+              <h3>기본정보</h3>
+              <div className="infoitem">
+                <div className="icon">
+                  <span className="material-symbols-outlined">person</span>
+                </div>
+                <input
+                  type="text"
+                  value={profileState.name || ""}
+                  onChange={(e) => {
+                    setProfileState((or) => ({
+                      ...or,
+                      name: e.target.value,
+                    }));
+                  }}
+                />
+              </div>
+              <div className="infoitem">
+                <div className="icon">
+                  <span className="material-symbols-outlined">chat_bubble</span>
+                </div>
+                <input
+                  type="text"
+                  value={profileState.userBio || ""}
+                  placeholder="+ 한줄소개 추가"
+                  onChange={(e) =>
+                    setProfileState((or) => ({
+                      ...or,
+                      userBio: e.target.value,
+                    }))
+                  }
+                ></input>
+              </div>
+            </div>
+            <div className="kakaoinfo">
+              <h3>카카오 내정보</h3>
+              <p>
+                카카오 계정 내정보에서 프로필 기본 정보를 통합 관리할 수 있으며,
+                이 정보는 다른 카카오 서비스에서도 함께 이용할 수 있습니다.
+              </p>
+              <div className="infoitem">
+                <div className="icon">
+                  <span className="material-symbols-outlined">redeem</span>
+                </div>
+                <input
+                  type="date"
+                  value={profileState.birthday || ""}
+                  onChange={(e) =>
+                    setProfileState((or) => ({
+                      ...or,
+                      birthday: e.target.value,
+                    }))
                   }
                 />
               </div>
-              <div className="userInfo">
-                <p>{userInfo.name}</p>
-                <p>{userInfo.userBio}</p>
+              <div className="infoitem">
+                <div className="icon">
+                  <i className="fa-solid fa-venus-mars"></i>
+                </div>
+                <select
+                  defaultValue={profileState.gender}
+                  // value={profileState.gender}
+                  onChange={(e) =>
+                    setProfileState((or) => ({
+                      ...or,
+                      gender: e.target.value,
+                    }))
+                  }
+                >
+                  <option value="noSelect" disabled>
+                    성별을 선택해주세요
+                  </option>
+                  <option value={""}>선택안함</option>
+                  <option value={"man"}>남성</option>
+                  <option value={"woman"}>여성</option>
+                </select>
               </div>
             </div>
-            <div className="inputGroup">
-              <input
-                type="file"
-                id="filetype"
-                accept="image/*"
-                onChange={updatePhoto}
-              />
-              <label htmlFor="filetype">사진변경</label>
-              <input
-                type="file"
-                id="filetype_bg"
-                accept="image/*"
-                onChange={updateBgPhoto}
-              />
-              <label htmlFor="filetype_bg">배경사진변경</label>
-            </div>
-          </div>
-          <div className="basicinfo">
-            <h3>기본정보</h3>
-            <div className="infoitem">
-              <div className="icon">
-                <span className="material-symbols-outlined">person</span>
+            <div className="profileThumbsup">
+              <div className="profileThumbsup_text">
+                <h3>프로필에 계정 추천 표시</h3>
+                <p>
+                  사람들이 회원님의 프로필에서 비슷한 계정 추천을 볼 수 있는지와
+                  회원님의 계정이 다른 프로필에서 추천될 수 있는지를 선택하세요.
+                </p>
               </div>
-              <input
-                type="text"
-                value={profileState.name || ""}
-                onChange={(e) => {
-                  setProfileState((or) => ({
-                    ...or,
-                    name: e.target.value,
-                  }));
-                }}
-              />
-            </div>
-            <div className="infoitem">
-              <div className="icon">
-                <span className="material-symbols-outlined">chat_bubble</span>
-              </div>
-              <input
-                type="text"
-                value={profileState.userBio || ""}
-                placeholder="+ 한줄소개 추가"
-                onChange={(e) =>
-                  setProfileState((or) => ({
-                    ...or,
-                    userBio: e.target.value,
-                  }))
-                }
-              ></input>
-            </div>
-          </div>
-          <div className="kakaoinfo">
-            <h3>카카오 내정보</h3>
-            <p>
-              카카오 계정 내정보에서 프로필 기본 정보를 통합 관리할 수 있으며,
-              이 정보는 다른 카카오 서비스에서도 함께 이용할 수 있습니다.
-            </p>
-            <div className="infoitem">
-              <div className="icon">
-                <span className="material-symbols-outlined">redeem</span>
-              </div>
-              <input
-                type="date"
-                value={profileState.birthday || ""}
-                onChange={(e) =>
-                  setProfileState((or) => ({
-                    ...or,
-                    birthday: e.target.value,
-                  }))
-                }
-              />
-            </div>
-            <div className="infoitem">
-              <div className="icon">
-                <i className="fa-solid fa-venus-mars"></i>
-              </div>
-              <select
-                defaultValue={profileState.gender}
-                // value={profileState.gender}
-                onChange={(e) =>
-                  setProfileState((or) => ({
-                    ...or,
-                    gender: e.target.value,
-                  }))
-                }
+              <div
+                // profileState={profileState.displayProfile}
+                className="switch"
+                data-ison={isOn}
+                onClick={toggleSwitch}
               >
-                <option value="noSelect" disabled>
-                  성별을 선택해주세요
-                </option>
-                <option value={""}>선택안함</option>
-                <option value={"man"}>남성</option>
-                <option value={"woman"}>여성</option>
-              </select>
+                <motion.div className="handle" layout transition={spring} />
+              </div>
             </div>
           </div>
-          <div className="profileThumbsup">
-            <div className="profileThumbsup_text">
-              <h3>프로필에 계정 추천 표시</h3>
-              <p>
-                사람들이 회원님의 프로필에서 비슷한 계정 추천을 볼 수 있는지와
-                회원님의 계정이 다른 프로필에서 추천될 수 있는지를 선택하세요.
-              </p>
-            </div>
-            <div
-              // profileState={profileState.displayProfile}
-              className="switch"
-              data-ison={isOn}
-              onClick={toggleSwitch}
-            >
-              <motion.div className="handle" layout transition={spring} />
-            </div>
-          </div>
-        </div>
-        <BtnGroup>
-          <button onClick={wrapperClick}>취소</button>
-          {changeContent ? (
-            <SumbmitBtn onClick={editProfile} className="okSumbit">
-              수정
-            </SumbmitBtn>
-          ) : (
-            <SumbmitBtn className="unSumbit">수정</SumbmitBtn>
-          )}
-        </BtnGroup>
-      </Modal>
-    </Wrapper>
+          <BtnGroup>
+            <button onClick={wrapperClick}>취소</button>
+            {changeContent ? (
+              <SumbmitBtn onClick={editProfile} className="okSumbit">
+                {isLoading ? "업로드 중 ..." : "수정"}
+              </SumbmitBtn>
+            ) : (
+              <SumbmitBtn className="unSumbit">수정</SumbmitBtn>
+            )}
+          </BtnGroup>
+        </Modal>
+      </Wrapper>
+    </>
   );
 };
 

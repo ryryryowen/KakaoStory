@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { getAuth } from "firebase/auth";
 import { db } from "../../../configs/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import ModalOverlay from "./ModalOverlay";
 import { lightTheme, darkTheme } from "../../../styles/Theme";
 import { DarkModeStateContext } from "../../../App";
@@ -353,10 +353,18 @@ const DetailModal = ({ isOpen, onClose, postId }) => {
     setIsEditModalOpen(false);
   };
 
-  const handleDelete = () => {
-    const confirmDelete = window.confirm("게시글을 삭제하시겠습니까?");
+  const handleDelete = async (postId) => {
+    const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
     if (confirmDelete) {
-      alert("게시글이 삭제되었습니다.");
+      try {
+        const postRef = doc(db, "contents", postId);
+        await deleteDoc(postRef);
+        onClose();
+        alert("게시글이 삭제되었습니다.");
+      } catch (error) {
+        console.error("글 삭제중 오류 발생", error);
+        alert("게시글 삭제에 실패하였습니다.");
+      }
     }
   };
 
@@ -408,15 +416,15 @@ const DetailModal = ({ isOpen, onClose, postId }) => {
             </div>
             {isPostOwner && (
               <EditDeleteIcons>
-                <span
+                {/* <span
                   className="material-symbols-outlined icon"
                   onClick={handleEdit}
                 >
                   edit
-                </span>
+                </span> */}
                 <span
                   className="material-symbols-outlined icon"
-                  onClick={handleDelete}
+                  onClick={() => handleDelete(postId)}
                 >
                   delete
                 </span>

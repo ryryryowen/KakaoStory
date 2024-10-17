@@ -311,39 +311,39 @@ const Modal = () => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      // Kakao 로그아웃 REST API 호출
-      const accessToken = userAuth.currentUser?.stsTokenManager.accessToken;
+  // const handleLogout = async () => {
+  //   try {
+  //     // Kakao 로그아웃 REST API 호출
+  //     const accessToken = userAuth.currentUser?.stsTokenManager.accessToken;
 
-      // Firebase 로그아웃
-      await userAuth.signOut();
+  //     // Firebase 로그아웃
+  //     await userAuth.signOut();
 
-      if (accessToken) {
-        await axios.post(
-          "https://kapi.kakao.com/v1/user/logout",
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${user.accessToken}`,
-            },
-          }
-        );
-        // console.log("Kakao 로그아웃 완료");
-        setUser({
-          ...user,
-          isLoggedIn: false,
-        });
-      } else {
-        // console.log("Access Token이 없습니다.");
-      }
-    } catch (error) {
-      console.log("로그아웃 중 오류 발생:", error);
-    } finally {
-      window.alert("로그아웃 되셨습니다.");
-      navigate("/");
-    }
-  };
+  //     if (accessToken) {
+  //       await axios.post(
+  //         "https://kapi.kakao.com/v1/user/logout",
+  //         {},
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${user.accessToken}`,
+  //           },
+  //         }
+  //       );
+  //       // console.log("Kakao 로그아웃 완료");
+  //       setUser({
+  //         ...user,
+  //         isLoggedIn: false,
+  //       });
+  //     } else {
+  //       // console.log("Access Token이 없습니다.");
+  //     }
+  //   } catch (error) {
+  //     console.log("로그아웃 중 오류 발생:", error);
+  //   } finally {
+  //     window.alert("로그아웃 되셨습니다.");
+  //     navigate("/");
+  //   }
+  // };
 
   const handleEmailLogin = async (id, pw) => {
     try {
@@ -594,7 +594,6 @@ const Modal = () => {
                   {!registerMode ? "회원가입" : "로그인하기"}
                 </span>
               </SubMenus>
-              <button onClick={handleLogout}>로그아웃 테스트</button>
             </SubMenuWrapper>
           </LeftAreaWrapper>
         </LeftArea>

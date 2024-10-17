@@ -1,39 +1,14 @@
 {
   "storyVideoData": [
     {
-      "user": "e푸른_sky",
-      "thumbnail": "url/어쩌고저쩌고",
-      "videoUrls": ["url/어쩌고저쩌고", "url/어쩌고저쩌고"]
+      "name": "e푸른_sky",
+      "id": "url/어쩌고저쩌고",
+      "videoURL": ["url/어쩌고저쩌고", "url/어쩌고저쩌고"]
     },
     {
-      "user": "타락파워전사",
-      "thumbnail": "url/어쩌고저쩌고",
-      "videoUrls": ["url/어쩌고저쩌고", "url/어쩌고저쩌고"]
-    },
-    {
-      "user": "coding_초보",
-      "thumbnail": "url/new_thumbnail",
-      "videoUrls": ["url/new_video1", "url/new_video2"]
-    },
-    {
-      "user": "신입개발자",
-      "thumbnail": "url/thumbnail_신입",
-      "videoUrls": ["url/video_신입_1", "url/video_신입_2"]
-    },
-    {
-      "user": "베테랑유저",
-      "thumbnail": "url/thumbnail_베테랑",
-      "videoUrls": ["url/video_베테랑_1", "url/video_베테랑_2"]
-    },
-    {
-      "user": "pro_gamer",
-      "thumbnail": "url/pro_gamer_thumb",
-      "videoUrls": ["url/video_gamer1", "url/video_gamer2"]
-    },
-    {
-      "user": "movie_fanatic",
-      "thumbnail": "url/movie_fan_thumb",
-      "videoUrls": ["url/movie1", "url/movie2"]
+      "name": "타락파워전사",
+      "id": "url/어쩌고저쩌고",
+      "videoURL": ["url/어쩌고저쩌고", "url/어쩌고저쩌고"]
     }
   ],
   "shotVideo": [

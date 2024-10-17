@@ -148,33 +148,11 @@ const StoryVid = styled.video`
   object-fit: cover;
 `;
 
-const StoryArray = [
-  { id: 1, name: "Alice" },
-  { id: 2, name: "Bob" },
-  { id: 3, name: "Charlie" },
-  { id: 4, name: "David" },
-  { id: 5, name: "Eve" },
-  { id: 6, name: "Frank" },
-  { id: 7, name: "Grace" },
-  { id: 8, name: "Hannah" },
-  { id: 9, name: "Ian" },
-  { id: 10, name: "Jack" },
-  { id: 11, name: "Kathy" },
-  { id: 12, name: "Leo" },
-  { id: 13, name: "Mona" },
-  { id: 14, name: "Nina" },
-  { id: 15, name: "Oscar" },
-  { id: 16, name: "Paul" },
-  { id: 17, name: "Quinn" },
-  { id: 18, name: "Rachel" },
-  { id: 19, name: "Steve" },
-  { id: 20, name: "Tina" },
-];
-
 function StoryMain() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [allStoryVideos, setAllStoryVideos] = useState([]);
   const itemsPerPage = 8; // 한 페이지에 보이는 아이템 수
-  const totalItems = StoryArray.length;
+  const totalItems = allStoryVideos.length;
   const isDragging = useRef(false);
   const startX = useRef(0);
   const dragStartIndex = useRef(0);
@@ -184,7 +162,6 @@ function StoryMain() {
   const [modalOpen, setModalOpen] = useState(false);
   const [storyList, setStoryList] = useState([]);
   const [selectedStory, setSelectedStory] = useState(null);
-  const [allStoryVideos, setAllStoryVideos] = useState([]);
 
   const handleMouseDown = (e) => {
     isDragging.current = true;
@@ -227,7 +204,7 @@ function StoryMain() {
 
   const getStoryVidData = async () => {
     try {
-      const storyVidRef = doc(db, `shotVideos/${selectedStory?.videoRef}`);
+      const storyVidRef = doc(db, `storyvideo/${selectedStory?.id}`);
       const storyVids = await getDoc(storyVidRef);
 
       if (storyVids) {
@@ -243,13 +220,14 @@ function StoryMain() {
 
   const getAllStoryDatas = async () => {
     try {
-      const storyAllVidsRef = query(collection(db, "shotVideos"));
+      const storyAllVidsRef = query(collection(db, "storyvideo"));
       const storyAllVids = await getDocs(storyAllVidsRef);
       let datas = [];
       const data = storyAllVids.docs.map((video) => {
         const src = video.data();
         datas.push(src);
       });
+      console.log(data);
       // console.log(datas);
       setAllStoryVideos(datas);
     } catch (error) {
@@ -258,12 +236,12 @@ function StoryMain() {
   };
 
   useEffect(() => {
-    const pivotArr = StoryArray.map((story, index) => ({
-      ...story,
-      videoRef: `video${index + 1}`,
-    }));
-    setStoryList(pivotArr);
+    getAllStoryDatas();
+  }, []);
+
+  useEffect(() => {
     getStoryVidData();
+    console.log(selectedStory);
   }, [selectedStory]);
 
   // console.log(selectedStory);
@@ -276,10 +254,10 @@ function StoryMain() {
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
       >
-        <StoryListMain drag="x" dragConstraints={{ left: -1750, right: 0 }}>
+        <StoryListMain drag="x" dragConstraints={{ left: -1350, right: 0 }}>
           {allStoryVideos?.map((item) => (
             <Story key={item.id} onClick={() => handleStoryClick(item)}>
-              <StoryThumbnail src={item.src} muted />
+              <StoryThumbnail src={item.videoURL} muted />
               <span>{item?.name}</span> {/* 이름 추가 */}
             </Story>
           ))}
@@ -290,8 +268,8 @@ function StoryMain() {
           <ModalContent onClick={(e) => e.stopPropagation()}>
             <StoryTopRow>
               <StoryUserNames>
-                <StoryImg src={storyVid?.src} muted></StoryImg>
-                <StoryUserName>{selectedStory.name}</StoryUserName>
+                <StoryImg src={selectedStory?.videoURL} muted></StoryImg>
+                <StoryUserName>{selectedStory?.name}</StoryUserName>
               </StoryUserNames>
               <StoryTopRowItems>
                 <i className="fa-solid fa-volume-xmark"></i>
@@ -299,7 +277,7 @@ function StoryMain() {
               </StoryTopRowItems>
             </StoryTopRow>
             <StoryMiddleRow>
-              <StoryVid src={storyVid?.src} controls />
+              <StoryVid src={selectedStory?.videoURL} controls />
             </StoryMiddleRow>
             <StoryBottomRow>
               <StoryTextarea

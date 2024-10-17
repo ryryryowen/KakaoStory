@@ -22,7 +22,7 @@ const Container = styled.div`
 
 const ContentBox = styled.div`
   width: 90%;
-  height: 420px;
+  /* height: 420px; */
   overflow: hidden;
   border-radius: 15px;
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
@@ -36,7 +36,9 @@ const Content = styled.div`
   gap: 5px;
   padding: 20px 0;
   color: ${({ theme }) => theme.fontColor};
-  background: ${({ theme }) => theme.bgColor};
+  background: ${({ theme }) =>
+    theme.bgColor === "var(--main-dark)" ? "#333" : theme.bgColor};
+  /* background: ${({ theme }) => theme.bgColor}; */
   /* border: 1px solid ${({ theme }) => theme.fontColor}; */
 `;
 
@@ -89,14 +91,8 @@ const Heart = styled.div`
 
 const TextMain = styled.div`
   width: 100%;
-  height: 48px;
-  margin: 5px 0 10px 0;
-  padding-top: 10px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  margin: 20px 0;
+  line-height: 140%;
 `;
 const CommentArea = styled.div`
   display: flex;
@@ -138,9 +134,10 @@ const Day = styled.div`
 const Comment = styled.input`
   width: 330px;
   height: 37px;
-  background: #d9d9d9;
+  /* background: #d9d9d9; */
   border: none;
   border-radius: 10px;
+  background: ${({ theme }) => theme.bgInputColor};
 `;
 
 const CommentIcon = styled.div`

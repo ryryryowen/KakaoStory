@@ -38,6 +38,7 @@ const AddstoryModal = styled.textarea`
   background: transparent;
   font-size: 18px;
   font-style: "$kakaoBig";
+  color: ${({ theme }) => theme.fontColor};
   resize: none;
   border: none;
   width: 100%;

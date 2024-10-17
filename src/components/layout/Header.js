@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState, useRef, useContext } from "react";
+import React, { useState, useRef, useContext, useEffect } from "react";
 import {
   addDoc,
   collection,
@@ -11,7 +11,9 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import styled from "styled-components";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { DocIdContext } from "../../App";
+import { DarkModeStateContext, DocIdContext } from "../../App";
+import { faWeight } from "@fortawesome/free-solid-svg-icons";
+
 const Wrapper = styled.main`
   width: 100%;
   height: 60px;
@@ -28,18 +30,33 @@ const HeaderMain = styled.div`
   align-items: center;
 `;
 const KakaoLogo = styled.div`
-  width: 200px;
+  width: 220px;
   height: 60px;
+  margin-bottom: 10px;
   cursor: pointer;
-  background: url(${"/kakaoLgo/kakaoLight.png"}) center/cover;
+  background: ${({ darkmode }) =>
+    darkmode
+      ? `url("/kakaoLgo/kakaoDark.png") no-repeat`
+      : `url("/kakaoLgo/kakaoLight.png") no-repeat`};
+  cursor: pointer;
+  @media screen and (max-width: 768px) {
+    width: 40px;
+    height: 40px;
+    background: url("/kakaolgo/kakaologos.png") no-repeat;
+    object-fit: cover;
+    margin-left: 10px;
+    margin-bottom: 0;
+  }
 `;
 const SearchBarHeader = styled.input`
   width: 220px;
   height: 35px;
   border: none;
   border-radius: 24px;
-  background: #fbfbfb;
-  padding-left: 10px;
+  /* background: #fbfbfb; */
+  background: ${({ theme }) => theme.bgSubColor};
+  padding-left: 15px;
+  transition: all 0.3s;
   &:focus {
     outline: none;
     & ~ span {
@@ -56,7 +73,9 @@ const SearchBarHeaderValue = styled.span`
   align-items: center;
   gap: 10px;
   position: absolute;
-  left: 220px;
+  left: 250px;
+  color: ${({ theme }) => theme.fontColor};
+  opacity: ${({ theme }) => theme.modeOpacity};
   @media screen and (max-width: 1080px) {
     display: none;
   }
@@ -69,6 +88,9 @@ const LeftIconHeader = styled.div`
   button {
     border: none;
     background: none;
+    i {
+      font-size: 17px;
+    }
     cursor: pointer;
     color: ${({ theme }) => theme.fontColor};
     &:hover {
@@ -85,7 +107,8 @@ const AddStoryHeader = styled.button`
   font-size: 1rem;
   position: absolute;
   left: 50%;
-  background: ${({ theme }) => theme.addStoryColor};
+  background: ${({ theme }) => theme.bgSubColor};
+  color: ${({ theme }) => theme.fontColor};
   transform: translate(-50%);
   cursor: pointer;
   @media screen and (max-width: 1760px) {
@@ -98,7 +121,7 @@ const AddStoryHeader = styled.button`
     left: 55%;
     width: 430px;
   }
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 840px) {
     display: none;
   }
 `;
@@ -113,25 +136,31 @@ const Overlay = styled.div`
   top: 0;
 `;
 const Box = styled.textarea`
-  background: ${({ theme }) => theme.bgColor};
-  padding: 10px;
+  /* padding: 10px; */
   border-radius: 20px;
   width: 500px;
-  height: 250px;
+  min-height: 250px;
   background: ${({ theme }) => theme.bgColor};
   color: ${({ theme }) => theme.fontColor};
   border-radius: 40px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
   border: 1px solid #fae100;
   font-size: 18px;
-  font-style: "kakaobig";
+  font-style: "$kakaoBig";
   position: absolute;
   top: 60px;
   left: 50%;
   transform: translateX(-50%);
-  padding: 0 30px 170px;
+  padding: 0 30px 130px;
   z-index: 100;
   padding-top: 20px;
+  overflow-y: scroll;
+  resize: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  /* padding-bottom: 100px; */
   &:focus {
     outline: none;
   }
@@ -230,6 +259,7 @@ const Header = () => {
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
   const maxFileSize = 7 * 1024 * 1024;
+  const { darkmode } = useContext(DarkModeStateContext);
   const onChange = (e) => {
     setPost(e.target.value);
   };
@@ -243,6 +273,21 @@ const Header = () => {
       setFile(files[0]);
     }
   };
+
+  const [mobileSize, setMobileSize] = useState(false);
+
+  const updateSize = (e) => {
+    if (e.target.innerWidth <= 768) setMobileSize(true);
+    else setMobileSize(false);
+  };
+
+  useEffect(() => {
+    window.innerWidth <= 768 ? setMobileSize(true) : setMobileSize(false);
+    window.addEventListener("resize", updateSize);
+    return () => {
+      window.removeEventListener("resize", updateSize);
+    };
+  }, []);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -303,7 +348,7 @@ const Header = () => {
   return (
     <Wrapper>
       <HeaderMain>
-        <KakaoLogo onClick={() => navigate("/")} />
+        <KakaoLogo darkmode={darkmode} onClick={() => navigate("/")} />
         <SearchBarHeader type="text" id="searchBarHeader" />
         <SearchBarHeaderValue>
           <i className="fa-solid fa-magnifying-glass"></i>검색
@@ -312,38 +357,43 @@ const Header = () => {
       <AddStoryHeader onClick={() => setIsModalOpen(true)}>
         오늘의 스토리를 들려주세요.
       </AddStoryHeader>
-      <Overlay isOpen={isModalOpen}>
-        <Box
-          onChange={onChange}
-          value={post}
-          placeholder="오늘의 이야기를 들려주세요"
-          required
-        />
-        <HeaderAddStroyOptions>
-          <HeaderAddStoryIcons>
-            <i
-              className="fa-solid fa-camera"
-              onClick={() => fileInputRef.current.click()}
-            ></i>
-            <i className="fa-solid fa-music"></i>
-            <i className="fa-solid fa-link"></i>
-          </HeaderAddStoryIcons>
-          <HeaderAddStoryButtons>
-            <CancelAddStoryButton onClick={handleCancel}>
-              취소
-            </CancelAddStoryButton>
-            <UploadAddStoryButton onClick={onSubmit} disabled={isLoading}>
-              {isLoading ? "업로드 중..." : "올리기"}
-            </UploadAddStoryButton>
-          </HeaderAddStoryButtons>
-        </HeaderAddStroyOptions>
-        <FileInput
-          type="file"
-          accept="video/*, image/*"
-          ref={fileInputRef}
-          onChange={onFileChange}
-        />
-      </Overlay>
+      {mobileSize ? (
+        ""
+      ) : (
+        <Overlay isOpen={isModalOpen}>
+          <Box
+            onChange={onChange}
+            value={post}
+            placeholder="오늘의 이야기를 들려주세요"
+            required
+            maxlength="320"
+          />
+          <HeaderAddStroyOptions>
+            <HeaderAddStoryIcons>
+              <i
+                className="fa-solid fa-camera"
+                onClick={() => fileInputRef.current.click()}
+              ></i>
+              <i className="fa-solid fa-music"></i>
+              <i className="fa-solid fa-link"></i>
+            </HeaderAddStoryIcons>
+            <HeaderAddStoryButtons>
+              <CancelAddStoryButton onClick={handleCancel}>
+                취소
+              </CancelAddStoryButton>
+              <UploadAddStoryButton onClick={onSubmit} disabled={isLoading}>
+                {isLoading ? "업로드 중..." : "올리기"}
+              </UploadAddStoryButton>
+            </HeaderAddStoryButtons>
+          </HeaderAddStroyOptions>
+          <FileInput
+            type="file"
+            accept="video/*, image/*"
+            ref={fileInputRef}
+            onChange={onFileChange}
+          />
+        </Overlay>
+      )}
       <LeftIconHeader>
         <button>
           <i className="fa-solid fa-user-group"></i>
@@ -352,7 +402,10 @@ const Header = () => {
           <i className="fa-regular fa-bell"></i>
         </button>
         <button>
-          <i className="fa-regular fa-circle-user"></i>
+          <i
+            className="fa-regular fa-circle-user"
+            onClick={() => navigate("/profile")}
+          ></i>
         </button>
       </LeftIconHeader>
     </Wrapper>

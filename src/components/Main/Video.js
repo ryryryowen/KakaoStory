@@ -15,10 +15,11 @@ const VideoList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 50px;
-  margin-top: 230px;
-  margin-right: 10px;
+  padding-top: 230px;
+  padding-right: 10px;
+  padding-left: 30px;
   margin-bottom: 30px;
-  background: ${({ theme }) => theme.bgMainColor};
+  background: ${({ theme }) => theme.bgSubColor};
   @media (max-width: 1390px) {
     display: none;
   }
@@ -28,9 +29,11 @@ const VideosContainer = styled.div`
 `;
 const Videos = styled.video`
   width: 100%;
-  max-width: 240px;
+  max-width: 260px;
+  margin-top: 40px;
   height: 390px;
   background: #fff;
+  background: ${({ theme }) => theme.bgSubColor};
   border-radius: 20px;
   cursor: pointer;
   object-fit: cover;

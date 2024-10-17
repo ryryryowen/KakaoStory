@@ -22,6 +22,7 @@ import PostCard from "../components/Main/PostCard";
 import PostForm from "../components/Main/PostForm";
 import Post from "../components/Main/Post";
 import DetailModal from "../components/Detail/DetailModal/DetailModal";
+import LoadingScreen from "../common/LoadingScreen";
 
 const Wrapper = styled.div`
   padding-left: 50px;
@@ -86,10 +87,11 @@ export const UserInfo = React.createContext();
 const MyProfile = () => {
   const [mobileSize, setMobileSize] = useState(false);
   const user = userAuth.currentUser;
-  const initName = user.email.split("@")[0];
+  const initName = user.email?.split("@")[0] || user.displayName;
   const [post, setPost] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [userInfo, setUserInfo] = useState({
     name: user.displayName || initName,
@@ -147,7 +149,6 @@ const MyProfile = () => {
       try {
         const userDocRef = doc(db, "users", user.uid);
         const initInfo = await getDoc(userDocRef);
-        let unsubscribe;
 
         if (!initInfo.exists()) throw new Error("해당 유저 문서 없음");
         const userData = initInfo.data();
@@ -164,29 +165,6 @@ const MyProfile = () => {
           userID: user.uid,
         };
 
-        // unsubscribe = onSnapshot(userDocRef, (doc) => {
-        //   if (!doc.exists()) {
-        //     return;
-        //   } else {
-        //     return updateData;
-        //   }
-        // });
-        // const userData = initInfo.data();
-        // console.log("데이터 도착", userData);
-        // if (userData) {
-        // const updateData = {
-        //   name: userInfo.name,
-        //   userPhoto: userInfo.userPhoto,
-        //   bgImg: userInfo.bgImg,
-        //   userBio: userInfo.userBio,
-        //   gender: userInfo.gender,
-        //   birthday: userInfo.birthday,
-        //   displayProfile: userInfo.displayProfile,
-        //   email: user.email,
-        //   createdAt: userInfo.createdAt,
-        //   userID: user.uid,
-        // };
-
         await updateDoc(userDocRef, updateData);
 
         await updateProfile(user, {
@@ -196,6 +174,8 @@ const MyProfile = () => {
         // }
       } catch (err) {
         console.error(err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -292,12 +272,18 @@ const MyProfile = () => {
                 {/* <Post postData={post} /> */}
               </PostcardWrapper>
               <ProfileWrapper>
-                <MyProfileInfo userInfo={userInfo} setUserInfo={setUserInfo} />
+                <MyProfileInfo
+                  userInfo={userInfo}
+                  setUserInfo={setUserInfo}
+                  isLoading={isLoading}
+                  setIsLoading={setIsLoading}
+                />
               </ProfileWrapper>
             </ContentWrapper>
           </Wrapper>
         </>
       )}
+      {isLoading && <LoadingScreen />}
     </>
   );
 };

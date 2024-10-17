@@ -94,8 +94,7 @@ const Btns = styled.div`
   })};
   button {
     width: 100%;
-    background: ${({ darkmode }) => (darkmode ? "#555" : "#ddd")};
-    /* background: ${({ theme }) => theme.bgSubColor}; */
+    background: ${({ $darkmode }) => ($darkmode ? "#333" : "#ddd")};
     color: ${({ theme }) => theme.fontColor};
     border: none;
     padding: 15px 0;
@@ -118,7 +117,7 @@ const Btns = styled.div`
   }
 `;
 
-const MyProfileInfo = ({ userInfo, setUserInfo }) => {
+const MyProfileInfo = ({ userInfo, setUserInfo, isLoading, setIsLoading }) => {
   const { darkmode } = useContext(DarkModeStateContext);
   const [modal, setModal] = useState(false);
   const navigate = useNavigate();
@@ -167,6 +166,8 @@ const MyProfileInfo = ({ userInfo, setUserInfo }) => {
           modalOff={handleModal}
           userInfo={userInfo}
           setUserInfo={setUserInfo}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
         />
       )}
     </Wrapper>

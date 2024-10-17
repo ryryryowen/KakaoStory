@@ -18,7 +18,7 @@ const Container = styled.div`
   margin-bottom: 40px;
   position: relative;
   background: ${({ theme }) =>
-    theme.bgColor === "var(--main-dark)" ? "#222" : theme.bgColor};
+    theme.bgColor === "var(--main-dark)" ? "#333" : theme.bgColor};
   &:hover {
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
   }
@@ -190,7 +190,7 @@ const CommentImage = styled.div`
 const Commentinput = styled.input`
   width: 420px;
   height: 50px;
-  background: #efefef;
+  background: ${({ theme }) => theme.bgInputColor};
   border-radius: 15px;
   border: none;
   color: black; /* 기본 색상 */
@@ -231,7 +231,8 @@ const Slider = styled.div`
   left: 101%;
   transition: right 0.3s;
   z-index: 1;
-  background: #fff;
+  background: ${({ theme }) =>
+    theme.bgColor === "var(--main-dark)" ? "#333" : theme.bgColor};
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -254,6 +255,9 @@ const Deletebutton = styled.button`
   border: none;
   width: 60px;
   height: 30px;
+  background: ${({ theme }) =>
+    theme.bgColor === "var(--main-dark)" ? "#333" : theme.bgColor};
+  color: ${({ theme }) => theme.fontColor};
   border-radius: 5px;
   font-weight: bold;
   cursor: pointer;
@@ -436,10 +440,10 @@ const Post = ({ postData, openModal, isModalOpen, selectedPost }) => {
             </Comments>
 
             <Slider isOpen={isSliderOpen}>
-              <Editbutton onClick={(e) => editEvent(e, id)}>Edit</Editbutton>
+              {/* <Editbutton onClick={(e) => editEvent(e, id)}>Edit</Editbutton> */}
 
               <Deletebutton onClick={(e) => deleteEvent(e, id)}>
-                Delete
+                글 삭제
               </Deletebutton>
             </Slider>
           </Text>

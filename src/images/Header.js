@@ -24,7 +24,8 @@ const SearchBarHeader = styled.input`
   height: 35px;
   border: none;
   border-radius: 24px;
-  background: #fbfbfb;
+  background: ${({ theme }) => theme.bgSubColor};
+  /* background: #fbfbfb; */
 `;
 
 const AddStoryHeader = styled.button`
