@@ -272,7 +272,7 @@ function StoryMain() {
                 <StoryUserName>{selectedStory?.name}</StoryUserName>
               </StoryUserNames>
               <StoryTopRowItems>
-                <i className="fa-solid fa-volume-xmark"></i>
+                {/* <i className="fa-solid fa-volume-xmark"></i> */}
                 <i className="fa-solid fa-ellipsis"></i>
               </StoryTopRowItems>
             </StoryTopRow>

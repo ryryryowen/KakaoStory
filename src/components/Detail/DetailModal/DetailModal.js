@@ -308,7 +308,7 @@ const DetailModal = ({ isOpen, onClose, postId }) => {
           ...currentPost.comments,
           {
             commentId: Date.now().toString(),
-            userId: currentUser.email.split("@")[0],
+            userId: currentUser.displayName || currentUser.email.split("@")[0],
             commentUserImg: currentUser.photoURL || "/default-profile.png",
             content: newComment,
             createdAt: new Date().toISOString(),

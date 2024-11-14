@@ -30,9 +30,9 @@ const HeaderMain = styled.div`
   align-items: center;
 `;
 const KakaoLogo = styled.div`
-  width: 220px;
-  height: 60px;
-  margin-bottom: 10px;
+  width: 200px;
+  height: 50px;
+  margin-bottom: 15px;
   cursor: pointer;
   background: ${({ darkmode }) =>
     darkmode
@@ -49,14 +49,17 @@ const KakaoLogo = styled.div`
   }
 `;
 const SearchBarHeader = styled.input`
-  width: 220px;
-  height: 35px;
+  width: 200px;
+  height: 30px;
   border: none;
   border-radius: 24px;
   /* background: #fbfbfb; */
   background: ${({ theme }) => theme.bgSubColor};
   padding-left: 15px;
   transition: all 0.3s;
+  & ~ span {
+    ${({ text }) => (text === "" ? "" : "opacity: 0;")}
+  }
   &:focus {
     outline: none;
     & ~ span {
@@ -73,7 +76,8 @@ const SearchBarHeaderValue = styled.span`
   align-items: center;
   gap: 10px;
   position: absolute;
-  left: 250px;
+  font-size: 0.8rem;
+  left: 220px;
   color: ${({ theme }) => theme.fontColor};
   opacity: ${({ theme }) => theme.modeOpacity};
   @media screen and (max-width: 1080px) {
@@ -100,19 +104,18 @@ const LeftIconHeader = styled.div`
   }
 `;
 const AddStoryHeader = styled.button`
-  width: 500px;
-  height: 45px;
+  width: 400px;
+  height: 35px;
   border: none;
   border-radius: 40px;
-  font-size: 1rem;
+  font-size: 0.8rem;
   position: absolute;
-  left: 50%;
   background: ${({ theme }) => theme.bgSubColor};
   color: ${({ theme }) => theme.fontColor};
   transform: translate(-50%);
   cursor: pointer;
   @media screen and (max-width: 1760px) {
-    left: 60%;
+    left: 55%;
   }
   @media screen and (max-width: 1390px) {
     left: 65%;
@@ -125,6 +128,7 @@ const AddStoryHeader = styled.button`
     display: none;
   }
 `;
+
 const Overlay = styled.div`
   display: ${({ isOpen }) => (isOpen ? "block" : "none")};
   width: 100%;
@@ -135,6 +139,7 @@ const Overlay = styled.div`
   align-items: center;
   top: 0;
 `;
+
 const Box = styled.textarea`
   /* padding: 10px; */
   border-radius: 20px;
@@ -165,7 +170,7 @@ const Box = styled.textarea`
     outline: none;
   }
   @media screen and (max-width: 1760px) {
-    left: 60%;
+    left: 55%;
   }
   @media screen and (max-width: 1390px) {
     left: 65%;
@@ -188,7 +193,7 @@ const HeaderAddStroyOptions = styled.div`
   padding: 0 30px;
   z-index: 100;
   @media screen and (max-width: 1760px) {
-    left: 60%;
+    left: 55%;
   }
   @media screen and (max-width: 1390px) {
     left: 65%;
@@ -240,20 +245,14 @@ const UploadAddStoryButton = styled.button`
   border: none;
   color: #fff;
 `;
-const Closebutton = styled.button`
-  width: 70px;
-  height: 30px;
-  background: #ccc;
-  color: #fff;
-  border: none;
-  font-size: 14px;
-`;
 const FileInput = styled.input`
   display: none; // 숨기기
 `;
 const Header = () => {
   const navigate = useNavigate();
+  const [searchValue, setSearchValue] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [post, setPost] = useState("");
   const [file, setFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -330,6 +329,7 @@ const Header = () => {
       setPost("");
       setFile(null);
       setIsModalOpen(false);
+      setIsAlertModalOpen(false);
     } catch (e) {
       if (e instanceof FirestoreError) {
         console.error(e);
@@ -343,13 +343,23 @@ const Header = () => {
     setPost("");
     setFile(null);
     setIsModalOpen(false);
+    setIsAlertModalOpen(false);
+  };
+
+  const alertShow = () => {
+    alert("아직준비가안된서비스입니다.");
   };
 
   return (
     <Wrapper>
       <HeaderMain>
         <KakaoLogo darkmode={darkmode} onClick={() => navigate("/")} />
-        <SearchBarHeader type="text" id="searchBarHeader" />
+        <SearchBarHeader
+          type="text"
+          id="searchBarHeader"
+          text={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+        />
         <SearchBarHeaderValue>
           <i className="fa-solid fa-magnifying-glass"></i>검색
         </SearchBarHeaderValue>
@@ -395,10 +405,10 @@ const Header = () => {
         </Overlay>
       )}
       <LeftIconHeader>
-        <button>
+        <button onClick={alertShow}>
           <i className="fa-solid fa-user-group"></i>
         </button>
-        <button>
+        <button onClick={alertShow}>
           <i className="fa-regular fa-bell"></i>
         </button>
         <button>

@@ -145,6 +145,7 @@ const ProgressBar = styled(motion.div)`
   width: 0; // 초기 너비
   transition: width 0.8s ease-in-out; // 애니메이션 효과
 `;
+
 const Video = () => {
   const [videos, setVideos] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
